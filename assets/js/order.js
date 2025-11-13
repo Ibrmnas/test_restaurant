@@ -1,0 +1,503 @@
+(function () {
+  const REQUEST_TIMEOUT_MS = 15000;
+
+  // Track whether user wants to pay after placing the order
+  // values: null | 'revolut' | 'satispay'
+  let pendingPay = null;
+
+  // Delivery config
+  const DELIVERY_FEE = Number(window.SITE_CONFIG?.delivery?.fee ?? 2); // €2 default
+  const DELIVERY_SLOTS_COUNT = 3; // show next 3 slots
+
+  /* ---------- helpers ---------- */
+  function money(n) {
+    return (Math.round((Number(n) + Number.EPSILON) * 100) / 100).toFixed(2);
+  }
+  function itemsMap() {
+    const m = {};
+    (window.SITE_CONFIG?.items || []).forEach(i => (m[i.key] = i));
+    return m;
+  }
+  function snapToHalf(n) {
+    const v = Number(n);
+    if (!isFinite(v)) return 0.5;
+    return Math.max(0.5, Math.round(v * 2) / 2);
+  }
+  function getTableHeaders() {
+    const ths = document.querySelectorAll('table.table thead th');
+    return Array.from(ths).map(th => th.textContent.trim());
+  }
+  function addLabelsToRow(tr, heads) {
+    const tds = tr.querySelectorAll('td');
+    tds.forEach((td, i) => td.setAttribute('data-label', heads[i] || ''));
+  }
+
+  // --- totals (base vs payable) ---
+  function getBaseTotal() {
+    const el = document.getElementById('grand');
+    const n = el ? parseFloat(String(el.textContent).replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+    return isNaN(n) ? 0 : n;
+  }
+  function getPayableTotal() {
+    let total = getBaseTotal();
+    const cb = document.getElementById('include-delivery'); // hidden checkbox mirrors radio
+    if (cb && cb.checked) total += DELIVERY_FEE;
+    return total;
+  }
+  function updateTotalsUI() {
+    const cb = document.getElementById('include-delivery');
+    const rowFee = document.getElementById('row-delivery-fee');
+    const feeEl = document.getElementById('delivery-fee');
+    const payEl = document.getElementById('payable');
+    if (rowFee) rowFee.style.display = cb?.checked ? '' : 'none';
+    if (feeEl) feeEl.textContent = money(cb?.checked ? DELIVERY_FEE : 0);
+    if (payEl) payEl.textContent = money(getPayableTotal());
+    togglePayButtons();
+  }
+
+  // --- payments ---
+  function togglePayButtons() {
+    const disabled = getPayableTotal() <= 0;
+    ['pay-revolut', 'pay-satispay'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.disabled = disabled;
+    });
+    const toPay = document.getElementById('to-pay'); // optional
+    if (toPay) toPay.textContent = getPayableTotal().toFixed(2);
+  }
+  function openRevolut() {
+    const amt = getPayableTotal();
+    if (amt <= 0) return alert('Please add items to your order first.');
+    if (!window.PAY || !window.PAY.revolutUser) return alert('Revolut handle is not configured.');
+
+    const tpl = window.PAY.templates?.revolut
+      || 'https://revolut.me/{user}?amount={amount}&currency={cur}';
+
+    const url = tpl
+      .replace('{user}', encodeURIComponent(window.PAY.revolutUser))
+      .replace('{amount}', amt.toFixed(2))
+      .replace('{cur}', window.PAY.currency || 'EUR');
+
+    window.location.href = url;
+  }
+  function openSatispay() {
+    const amt = getPayableTotal();
+    if (amt <= 0) return alert('Please add items to your order first.');
+    if (!window.PAY || !window.PAY.satispayTag) return alert('Satispay tag is not configured.');
+
+    const tpl = window.PAY.templates?.satispay
+      || 'https://tag.satispay.com/{tag}?amount={amount}';
+
+    const url = tpl
+      .replace('{tag}', encodeURIComponent(window.PAY.satispayTag))
+      .replace('{amount}', amt.toFixed(2));
+
+    window.location.href = url;
+  }
+
+  /* ---------- delivery slots ---------- */
+  const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function fmtSlotLabel(date, start, end) {
+    const d = DOW[date.getDay()] + ' ' + date.getDate() + ' ' + MON[date.getMonth()];
+    const t = pad2(start.getHours()) + ':' + pad2(start.getMinutes()) + '–' + pad2(end.getHours()) + ':' + pad2(end.getMinutes());
+    return `${d}, ${t}`;
+  }
+  function nextDeliverySlots(count=3) {
+    const out = [];
+    const now = new Date();
+    for (let add=0; out.length<count && add<60; add++) {
+      const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add);
+      const sameDay = date.toDateString() === now.toDateString(); // no same-day delivery
+      const dow = date.getDay(); // 0=Sun, 3=Wed, 6=Sat
+      let startH=null, endH=null;
+      if (dow === 3) { startH = 18; endH = 20; }     // Wednesday 18:00–20:00
+      if (dow === 6) { startH = 10; endH = 12; }     // Saturday 10:00–12:00
+      if (startH==null || sameDay) continue;
+
+      const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), startH, 0, 0);
+      const end   = new Date(date.getFullYear(), date.getMonth(), date.getDate(), endH, 0, 0);
+      out.push({
+        date: `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`,
+        startISO: start.toISOString(),
+        endISO: end.toISOString(),
+        label: fmtSlotLabel(date, start, end)
+      });
+    }
+    return out.slice(0, count);
+  }
+  function populateDeliveryUI() {
+    const slots = nextDeliverySlots(DELIVERY_SLOTS_COUNT);
+    const sel = document.getElementById('delivery-slot');
+    const list = document.getElementById('next-slots');
+
+    if (sel) {
+      sel.innerHTML = '';
+      if (!slots.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No upcoming slots';
+        sel.appendChild(opt);
+        sel.disabled = true;
+      } else {
+        sel.disabled = false;
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select delivery slot';
+        sel.appendChild(placeholder);
+        slots.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = JSON.stringify(s);
+          opt.textContent = s.label;
+          sel.appendChild(opt);
+        });
+      }
+    }
+
+    if (list) {
+      list.innerHTML = '';
+      slots.forEach(s => {
+        const li = document.createElement('li');
+        li.textContent = s.label;
+        list.appendChild(li);
+      });
+    }
+  }
+
+  /* ---------- row builder ---------- */
+  function addRow(tbody, row) {
+    const map = itemsMap();
+    const tr = document.createElement('tr');
+    const td = () => document.createElement('td');
+
+    // Item select
+    const tdItem = td();
+    const sel = document.createElement('select');
+    (window.SITE_CONFIG?.items || []).forEach(it => {
+      const opt = document.createElement('option');
+      opt.value = it.key;
+      opt.textContent = it.name_en + ' / ' + it.name_it;
+      sel.appendChild(opt);
+    });
+    tdItem.appendChild(sel);
+
+    // Price
+    const tdPrice = td();
+    const price = document.createElement('input');
+    price.type = 'number';
+    price.step = '0.01';
+    price.readOnly = true;
+    tdPrice.appendChild(price);
+
+    // Qty with ± stepper (0.5 kg)
+    const tdQty = td();
+    const qtyWrap = document.createElement('div');
+    qtyWrap.className = 'qty-wrap';
+
+    const minus = document.createElement('button');
+    minus.type = 'button';
+    minus.className = 'qty-btn';
+    minus.textContent = '–';
+
+    const qty = document.createElement('input');
+    qty.type = 'number';
+    qty.step = '0.5';
+    qty.min  = '0.5';
+    qty.inputMode = 'decimal';
+    qty.placeholder = '0.5';
+
+    const plus = document.createElement('button');
+    plus.type = 'button';
+    plus.className = 'qty-btn';
+    plus.textContent = '+';
+
+    qtyWrap.append(minus, qty, plus);
+    tdQty.appendChild(qtyWrap);
+
+    // Notes
+    const tdNotes = td();
+    const notes = document.createElement('input');
+    notes.type = 'text';
+    tdNotes.appendChild(notes);
+
+    // Line total
+    const tdTot = td();
+    const tot = document.createElement('input');
+    tot.type = 'number';
+    tot.step = '0.01';
+    tot.readOnly = true;
+    tdTot.appendChild(tot);
+
+    // Row actions
+    const tdAct = td();
+    const del = document.createElement('button');
+    del.textContent = '✕';
+    del.className = 'btn';
+    del.addEventListener('click', () => { tr.remove(); recalc(); });
+    tdAct.appendChild(del);
+
+    [tdItem, tdPrice, tdQty, tdNotes, tdTot, tdAct].forEach(x => tr.appendChild(x));
+    tbody.appendChild(tr);
+
+    // labels for stacked mobile layout
+    addLabelsToRow(tr, getTableHeaders());
+
+    // sync calc
+    function sync() {
+      const it = map[sel.value];
+      const p = it ? it.price : 0;
+      price.value = money(p);
+      const q = parseFloat(qty.value || 0);
+      tot.value = money(p * q);
+      recalc();
+    }
+
+    // stepper handlers (scoped)
+    minus.addEventListener('click', () => {
+      const current = Number(qty.value) || 0;
+      const next = Math.max(0.5, current - 0.5);
+      qty.value = next.toFixed(1);
+      sync();
+    });
+    plus.addEventListener('click', () => {
+      const current = Number(qty.value) || 0;
+      const next = current + 0.5;
+      qty.value = next.toFixed(1);
+      sync();
+    });
+    qty.addEventListener('blur', () => { qty.value = snapToHalf(qty.value).toFixed(1); sync(); });
+    qty.addEventListener('wheel', e => e.preventDefault(), { passive:false });
+
+    sel.addEventListener('change', sync);
+    qty.addEventListener('input', sync);
+
+    // defaults
+    const firstKey = Object.keys(map)[0] || '';
+    if (row) {
+      sel.value = map[row.key] ? row.key : firstKey;
+      qty.value = snapToHalf(row.qty ?? 0.5).toFixed(1);
+    } else {
+      sel.value = firstKey;
+      qty.value = '0.5';
+    }
+    sync();
+  }
+
+  /* ---------- totals ---------- */
+  function recalc() {
+    let sum = 0;
+    document.querySelectorAll('tbody tr').forEach(tr => {
+      sum += parseFloat(tr.querySelector('td:nth-child(5) input').value || 0);
+    });
+    document.getElementById('grand').textContent = money(sum);
+    updateTotalsUI();
+  }
+
+  /* ---------- submit ---------- */
+  async function sendToSheet() {
+    const endpoint = window.WB_ENDPOINT || '';
+    if (!endpoint) { alert('Admin: please set WB_ENDPOINT in assets/js/backend.js'); return; }
+
+    // Build items from rows
+    const items = [];
+    document.querySelectorAll('tbody tr').forEach(tr => {
+      const sel = tr.querySelector('select');
+      const name = sel.options[sel.selectedIndex].text.split(' / ')[0];
+      const key = sel.value;
+      const price = parseFloat(tr.querySelector('td:nth-child(2) input').value || 0);
+      const qty = parseFloat(tr.querySelector('td:nth-child(3) input').value || 0);
+      const notes = tr.querySelector('td:nth-child(4) input').value || '';
+      if (qty > 0) items.push({ key, name, price, qty, notes });
+    });
+
+    // Validate minimums
+    const totalQty = items.reduce((s, it) => s + (parseFloat(it.qty) || 0), 0);
+    if (totalQty < 1) { alert('Minimum order is 1 kg (you can mix items, e.g., 0.5 + 0.5).'); return; }
+    for (const it of items) {
+      if (it.qty > 0 && it.qty < 0.5) { alert('Minimum per item is 0.5 kg.'); return; }
+      const multiple = Math.round(it.qty * 2) / 2;
+      if (Math.abs(it.qty - multiple) > 1e-6) { alert('Quantities must be in 0.5 kg steps (e.g., 0.5, 1, 1.5).'); return; }
+    }
+
+    const emailEl = document.getElementById('c-email');
+    if (!emailEl || !emailEl.value.trim() || !emailEl.checkValidity()) {
+      emailEl?.reportValidity(); emailEl?.focus(); return;
+    }
+
+    const mode = document.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+    let selectedSlot = null;
+    if (mode === 'delivery') {
+      const sel = document.getElementById('delivery-slot');
+      if (!sel || !sel.value) { alert('Please choose a delivery slot.'); return; }
+      try { selectedSlot = JSON.parse(sel.value); }
+      catch { alert('Invalid delivery slot. Please reselect.'); return; }
+    }
+
+    const allergies = (document.getElementById('c-allergies')?.value || '').trim();
+    const includeDelivery = mode === 'delivery';
+    const deliveryFee     = includeDelivery ? DELIVERY_FEE : 0;
+    const baseTotal       = getBaseTotal ? getBaseTotal() : 0;
+    const payableTotal    = getPayableTotal ? getPayableTotal() : baseTotal + deliveryFee;
+    const payMethod       = (typeof pendingPay !== 'undefined' && pendingPay) ? pendingPay : 'none';
+    const currency        = window.PAY?.currency || 'EUR';
+
+    const payload = {
+      name: document.getElementById('c-name').value.trim(),
+      phone: document.getElementById('c-phone').value.trim(),
+      address: document.getElementById('c-addr').value.trim(),
+      email: (document.getElementById('c-email')?.value || '').trim(),
+      notes: (document.getElementById('c-notes').value || '').trim(),
+      allergies,
+      items,
+      // fulfillment
+      fulfillment_mode: mode, // 'delivery' | 'pickup'
+      delivery_slot: selectedSlot, // {date, startISO, endISO, label} or null
+      // money
+      include_delivery: includeDelivery,
+      delivery_fee: deliveryFee,
+      base_total: Number(baseTotal.toFixed(2)),
+      payable_total: Number(payableTotal.toFixed(2)),
+      currency,
+      pay_method: payMethod,
+      lang: document.documentElement.lang || 'en',
+      ua: navigator.userAgent,
+      hp: document.getElementById('hp-field')?.value || ''
+    };
+
+    if (!payload.name || !payload.phone || !payload.address || items.length === 0) {
+      alert('Please fill your details and add at least one item.'); return;
+    }
+
+    const btn = document.getElementById('place-order');
+    const prev = btn.textContent;
+    btn.textContent = 'Sending...'; btn.disabled = true;
+
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + ' ' + res.statusText + (txt ? ' — ' + txt.slice(0, 200) : ''));
+      }
+
+      let j;
+      try { j = await res.json(); }
+      catch { const txt = await res.text(); throw new Error('Invalid JSON: ' + txt.slice(0, 200)); }
+
+      if (j && j.ok) {
+        // Order saved OK → go to selected payment if requested
+        const payNow = pendingPay; // snapshot before clearing
+        pendingPay = null;
+
+        // clear cart before redirecting out
+        localStorage.removeItem('cart');
+
+        if (payNow === 'revolut') { openRevolut(); return; }
+        if (payNow === 'satispay') { openSatispay(); return; }
+
+        alert('Order received! Your ID: ' + j.id);
+        location.href = 'index.html';
+      } else {
+        throw new Error(j && j.error ? String(j.error) : 'Unknown error');
+      }
+    } catch (err) {
+      console.error('Order submit failed:', err);
+      alert('Network / submit error: ' + err.message);
+    } finally {
+      clearTimeout(t);
+      btn.textContent = prev; btn.disabled = false;
+    }
+  }
+
+  /* ---------- boot ---------- */
+  document.addEventListener('DOMContentLoaded', function () {
+    // Build rows UI
+    const tbody = document.getElementById('rows');
+    addRow(tbody);
+    recalc();
+
+    document.getElementById('add').addEventListener('click', () => addRow(tbody));
+    document.getElementById('clear').addEventListener('click', () => { tbody.innerHTML = ''; recalc(); });
+
+    const csvBtn = document.getElementById('csv');
+    if (csvBtn) {
+      csvBtn.addEventListener('click', () => {
+        const allergies = (document.getElementById('c-allergies')?.value || '').trim();
+        const rows = [['Item', 'Price_EUR_kg', 'Qty_kg', 'Notes', 'Line_Total_EUR', 'Allergies']];
+        document.querySelectorAll('tbody tr').forEach(tr => {
+          const sel = tr.querySelector('select');
+          const price = tr.querySelector('td:nth-child(2) input').value;
+          const qty = tr.querySelector('td:nth-child(3) input').value;
+          const notes = tr.querySelector('td:nth-child(4) input').value;
+          const total = tr.querySelector('td:nth-child(5) input').value;
+          rows.push([sel.options[sel.selectedIndex].text, price, qty, notes, total, allergies]);
+        });
+        const csv = rows.map(r => r.map(x => '"' + String(x).replace(/"/g, '""') + '"').join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'order-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    // refresh labels on first load and whenever language changes
+    let HEADS = getTableHeaders();
+    document.querySelectorAll('table.table tbody tr').forEach(tr => addLabelsToRow(tr, HEADS));
+    window.addEventListener('wb:lang', () => {
+      HEADS = getTableHeaders();
+      document.querySelectorAll('table.table tbody tr').forEach(tr => addLabelsToRow(tr, HEADS));
+    });
+
+    // Submit (place only)
+    document.getElementById('place-order').addEventListener('click', () => {
+      pendingPay = null; // place only
+      sendToSheet();
+    });
+
+    // Payment buttons → place then pay (if present on page)
+    const payRev = document.getElementById('pay-revolut');
+    if (payRev) payRev.addEventListener('click', () => { pendingPay = 'revolut'; sendToSheet(); });
+    const paySat = document.getElementById('pay-satispay');
+    if (paySat) paySat.addEventListener('click', () => { pendingPay = 'satispay'; sendToSheet(); });
+
+    // Delivery / Pickup radios: mirror to hidden checkbox used by totals
+    const rbPickup = document.getElementById('fulfillment-pickup');
+    const rbDelivery = document.getElementById('fulfillment-delivery');
+    const includeDelivery = document.getElementById('include-delivery');
+    const deliveryControls = document.getElementById('delivery-controls');
+    const slotSelect = document.getElementById('delivery-slot');
+
+    function setMode(mode) {
+      const isDelivery = mode === 'delivery';
+      if (includeDelivery) includeDelivery.checked = isDelivery;
+      if (deliveryControls) deliveryControls.style.display = isDelivery ? '' : 'none';
+      if (isDelivery) {
+        populateDeliveryUI();
+        if (slotSelect) slotSelect.value = '';
+      }
+      updateTotalsUI();
+    }
+
+    rbPickup?.addEventListener('change', () => { if (rbPickup.checked) setMode('pickup'); });
+    rbDelivery?.addEventListener('change', () => { if (rbDelivery.checked) setMode('delivery'); });
+
+    // Initial mode (pickup by default)
+    setMode(rbDelivery?.checked ? 'delivery' : 'pickup');
+
+    // reflect initial disabled state (0.00 total)
+    togglePayButtons();
+
+    // Show next 3 delivery slots on the right
+    populateDeliveryUI();
+  });
+})();
