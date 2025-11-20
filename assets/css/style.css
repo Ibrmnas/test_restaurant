@@ -1,0 +1,255 @@
+/* ===========================
+   Tokens / Reset
+=========================== */
+:root {
+  --bg:#fff8f6; --panel:#ffffff; --ink:#1e1e1e; --muted:#5b5b5b;
+  --brand:#9a1a12; --brand-2:#f1c22e; --border:#eee;
+  --radius:18px; --shadow:0 12px 32px rgba(10,10,10,.08);
+}
+* { box-sizing:border-box }
+html,body { margin:0; padding:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  color:var(--ink); background:var(--bg);
+}
+a { color:var(--brand); text-decoration:none }
+img { max-width:100%; display:block }
+.container { width:min(1100px,92%); margin:0 auto }
+
+/* ===========================
+   Header
+=========================== */
+header {
+  position:sticky; top:0; z-index:40;
+  background:rgba(255,255,255,.7); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.nav { display:flex; align-items:center; justify-content:space-between; padding:12px 0; gap:12px }
+.brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px }
+.brand .logo { width:36px; height:36px; border-radius:12px; box-shadow:var(--shadow) }
+
+.navlinks { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+.navlinks a { padding:8px 12px; border-radius:999px; font-weight:600; color:#333 }
+.navlinks a.active { background:rgba(154,26,18,.1) }
+
+.lang { display:flex; gap:6px; align-items:center }
+.lang button { border:1px solid #ddd; background:#fff; padding:6px 10px; border-radius:999px; cursor:pointer; font-weight:700 }
+.lang button.active { background:var(--brand); color:#fff; border-color:var(--brand) }
+
+/* ===========================
+   Hero
+=========================== */
+.hero { display:grid; grid-template-columns:1fr; gap:26px; align-items:center; padding:26px 0 10px }
+.hero .panel {
+  background:linear-gradient(135deg,#ffffff 0%,#fff1ed 85%);
+  border:1px solid #f1e6e3; border-radius:var(--radius);
+  padding:26px; box-shadow:var(--shadow)
+}
+h1 { font-size:clamp(32px,4.2vw,56px); line-height:1.05; margin:0 0 10px }
+.kicker { font-size:.9rem; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:#a16a62; margin-bottom:8px }
+.tagline { font-size:clamp(15px,2vw,18px); color:var(--muted); margin:10px 0 18px }
+
+.chips { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0 16px; justify-content:center; align-items:center }
+.chip { background:#fff; border:1px dashed #e8d5d3; padding:10px 16px; border-radius:999px; font-weight:700; color:#7b4d48 }
+
+/* ===========================
+   Sections / Cards
+=========================== */
+.section { padding:28px 0 }
+.cards { display:grid; grid-template-columns:repeat(3,1fr); gap:18px }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px }
+.card h3 { margin:8px 0 }
+.price { font-weight:900; color:var(--brand) }
+.muted { color:var(--muted) }
+
+/* Food images */
+.food-img { width:100%; aspect-ratio:16/9; height:auto; object-fit:cover; border-radius:12px; border:1px solid #eee; margin-bottom:10px }
+
+/* Notices / grids */
+.notice { background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-top:10px }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px }
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px }
+.stack { display:flex; flex-direction:column; gap:8px }
+
+footer { border-top:1px solid var(--border); padding:22px 0 48px; color:var(--muted); margin-top:26px }
+.badge { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px dashed #e8d5d3; border-radius:999px; background:#fff; color:#7b4d48; font-weight:700 }
+.actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px }
+.actions .btn { border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px 14px; cursor:pointer; font-weight:800 }
+.actions .btn.primary { background:var(--brand); color:#fff; border-color:var(--brand) }
+.order-count { background:var(--brand); color:#fff; border-radius:999px; padding:2px 8px; font-size:.8rem; font-weight:800; margin-left:6px }
+
+/* ===========================
+   Table (Order)
+=========================== */
+.table-wrap { background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden }
+table.table { width:100%; border-collapse:collapse }
+table.table th, table.table td { padding:12px 10px; border-bottom:1px solid #f1f1f1; text-align:left }
+table.table th { background:#fff7f5; font-weight:800 }
+table.table tfoot td { font-weight:900 }
+
+/* Qty stepper */
+.qty-wrap { display:flex; align-items:center; gap:8px }
+.qty-btn { border:1px solid var(--border); background:#fff; width:36px; height:36px; border-radius:8px; font-weight:800; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer }
+.qty-wrap input { text-align:center; height:36px }
+
+/* ===========================
+   Forms
+=========================== */
+.form-group{ margin-bottom:15px }
+.form-group label{ display:block; font-weight:bold; margin-bottom:5px }
+.form-group input,.form-group textarea{ width:100%; padding:10px; font-size:16px; border:1px solid #ccc; border-radius:5px }
+.form-group textarea{ resize:vertical }
+.form-group button{ padding:10px 20px; font-size:16px; border:none; background-color:#9a1a12; color:white; border-radius:5px; cursor:pointer }
+.form-group button:hover{ background-color:#7a160f }
+
+/* Hide native number spinners for Qty */
+.qty-wrap input[type="number"]{ appearance:textfield; -moz-appearance:textfield }
+.qty-wrap input[type="number"]::-webkit-inner-spin-button,
+.qty-wrap input[type="number"]::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0 }
+
+/* ===========================
+   Responsive
+=========================== */
+
+/* Desktop: prevent clipping on right columns */
+@media (min-width:900px){
+  .table-wrap{ overflow:visible }
+  table.table{ table-layout:auto }
+  table.table th:nth-child(2), table.table td:nth-child(2){ width:140px }
+  table.table th:nth-child(3), table.table td:nth-child(3){ width:180px }
+  table.table th:nth-child(5), table.table td:nth-child(5){ width:140px }
+  table.table th:nth-child(6), table.table td:nth-child(6){ width:64px }
+  table.table td:nth-child(2) input, table.table td:nth-child(5) input{ width:100%; text-align:right }
+  .qty-wrap{ display:inline-grid; grid-template-columns:34px minmax(70px,1fr) 34px; gap:8px; vertical-align:middle }
+  .qty-btn{ width:34px; height:34px }
+  table.table tfoot td{ white-space:nowrap; padding-right:12px; text-align:right; font-weight:900 }
+}
+
+/* Collapse cards earlier */
+@media (max-width:900px){ .cards{ grid-template-columns:1fr } }
+
+/* Tablet/small layout helpers */
+@media (max-width:768px){
+  .form-group{ margin-bottom:12px }
+  .form-group input,.form-group textarea,.form-group button{ font-size:14px }
+  .form-group button{ padding:12px 16px; width:100% }
+}
+
+/* Phone general */
+@media (max-width:640px){
+  /* Header → 3 rows: brand, links, EN/IT (right) */
+  .nav{
+    display:grid; grid-template-columns:1fr;
+    grid-template-areas:"brand" "links" "lang";
+    gap:8px; padding:8px 0; align-items:center;
+  }
+  .brand{ grid-area:brand; gap:8px }
+  .brand .logo{ width:34px; height:34px }
+  .brand > div{ font-weight:800; font-size:18px; line-height:1.1 }
+  .navlinks{ grid-area:links; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; overflow:visible; white-space:normal }
+  .navlinks a{ padding:6px 10px; font-size:14px; border-radius:999px }
+  .lang{ grid-area:lang; display:flex; gap:8px; justify-content:flex-end }
+
+  /* Hero tweaks */
+  .hero .panel{ padding:16px 14px }
+  h1{ font-size:clamp(24px,7vw,34px); margin-bottom:8px }
+  .kicker{ font-size:.8rem; margin-bottom:6px }
+
+  /* Chips → 2 columns; only center last when odd */
+  .chips{
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px 12px; justify-items:stretch; align-items:stretch; margin-top:10px;
+  }
+  .chip{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; padding:10px 12px; font-size:.95rem; line-height:1.2;
+    text-align:center; white-space:normal; word-break:break-word; border-radius:999px;
+  }
+  .chips > .chip:last-child{ grid-column:auto; width:100% }
+  .chips > .chip:last-child:nth-child(odd){ grid-column:1 / -1; justify-self:center; width:78% }
+
+  /* Order table → stacked card layout */
+  .table-wrap{ overflow:visible !important; box-shadow:none }
+  table.table thead{ display:none }
+  table.table tbody tr{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px 12px;
+    background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px;
+  }
+  table.table tbody td{
+    display:flex; flex-direction:column; gap:6px; padding:0; border:0;
+  }
+  table.table tbody td::before{
+    content:attr(data-label); font-weight:700; font-size:.9rem; color:var(--ink); opacity:.85; margin-bottom:6px; line-height:1.2;
+  }
+  table.table tbody td:nth-child(1){ grid-column:1 } /* Item */
+  table.table tbody td:nth-child(2){ grid-column:2 } /* Price €/kg */
+  table.table tbody td:nth-child(3){ grid-column:1 } /* Qty */
+  table.table tbody td:nth-child(4){ grid-column:2 } /* Notes */
+  table.table tbody td:nth-child(5){ grid-column:1 } /* Line Price */
+  table.table tbody td:nth-child(6){ grid-column:2; align-self:center; justify-self:end } /* delete */
+
+  table.table select, table.table input{ width:100%; min-width:0; height:40px; border-radius:10px }
+  .qty-wrap{ display:grid; grid-template-columns:40px 1fr 40px; gap:8px }
+  .qty-btn{ width:40px; height:40px; border-radius:10px }
+  .qty-wrap input{ height:40px; text-align:center }
+
+  table.table tfoot td{ padding:10px 0 }
+}
+
+/* Smaller phone tweaks */
+@media (max-width:520px){
+  .section{ padding:20px 0 }
+  .actions{ flex-direction:column }
+  .actions .btn{ width:100%; text-align:center }
+  table.table th, table.table td{ padding:10px 8px; font-size:14px }
+}
+
+/* Very small phones: fall back to one column for the order card */
+@media (max-width:360px){
+  table.table tbody tr{ grid-template-columns:1fr }
+  table.table tbody td:nth-child(2),
+  table.table tbody td:nth-child(4),
+  table.table tbody td:nth-child(6){ grid-column:1; justify-self:end }
+}
+
+/* ===========================
+   Customer details grid (Address next to Email)
+=========================== */
+/* Desktop/tablet auto 2-col if 4 cards present */
+@supports (selector(.grid-3:has(> .card))) {
+  @media (min-width:768px){
+    .grid-3:has(> .card:nth-child(4)){ grid-template-columns:1fr 1fr; gap:16px; }
+  }
+}
+/* Fallback class */
+@media (min-width:768px){
+  .customer-grid{ grid-template-columns:1fr 1fr; gap:16px; }
+}
+
+/* ===== Customer details: 1 column on phones (4 rows) ===== */
+@media (max-width: 640px){
+  /* force single column for both the :has path and the .customer-grid path */
+  .grid-3.customer-grid,
+  .grid-3:has(> .card:nth-child(4)){
+    display:grid; grid-template-columns:1fr !important; gap:16px;
+  }
+  .grid-3.customer-grid .card,
+  .grid-3:has(> .card:nth-child(4)) > .card{
+    grid-column:1 !important; width:100%;
+  }
+}
+
+/* ===========================
+   About Section (stack cards on phones)
+=========================== */
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px }
+@media (max-width:640px){
+  .grid-2{ display:flex; flex-direction:column; gap:16px }
+  .grid-2 .card{ width:100% }
+}
+
+@media (max-width:640px){
+  .actions #pay-revolut,
+  .actions #pay-satispay{
+    width:100%;
+  }
+}

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home • The Weekend Bite</title>
+  <meta name="description" content="Fresh, halal, homemade Lebanese chicken marinades in Torino. Weekend delivery. Min 1 kg." />
+  <meta name="theme-color" content="#9a1a12" />
+  <link rel="icon" href="assets/img/logo.png" type="image/svg+xml">
+
+  <style>
+    :root{
+      --bg:#fff8f6; --panel:#ffffff; --ink:#1e1e1e; --muted:#5b5b5b; --brand:#9a1a12; --brand-2:#f1c22e;
+      --border:#eee; --radius:18px; --shadow:0 12px 32px rgba(10,10,10,.08);
+      --glass:rgba(255,255,255,0.65); --ink-2:#2a2a2a; --success:#1a7f37;
+      --grad: radial-gradient(1200px 600px at 20% -10%, rgba(241,194,46,.18), transparent 60%),
+              radial-gradient(900px 600px at 110% -20%, rgba(154,26,18,.12), transparent 60%),
+              radial-gradient(800px 600px at 60% 120%, rgba(154,26,18,.10), transparent 60%);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg)}
+    a{color:var(--brand);text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{width:min(1180px,92%);margin:0 auto}
+
+    /* ===== Header ===== */
+    header{position:sticky;top:0;background:var(--glass);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:40}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .brand .logo{width:38px;height:38px;border-radius:12px;box-shadow:var(--shadow)}
+    .brand .name{display:flex;flex-direction:column;line-height:1}
+    .brand .name b{font-size:16px}
+    .brand .name span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+
+    .navlinks{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .navlinks a{padding:8px 12px;border-radius:999px;font-weight:700;color:#333;position:relative}
+    .navlinks a:is(:hover,.active){background:rgba(154,26,18,.08)}
+    .navlinks a.active::after{content:"";position:absolute;inset:auto 10px -6px 10px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--brand),var(--brand-2));}
+
+    .lang{display:flex;gap:6px;align-items:center}
+    .lang button{border:1px solid #ddd;background:#fff;padding:6px 10px;border-radius:999px;cursor:pointer;font-weight:800}
+    .lang button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+    /* ===== Hero ===== */
+    .page-bg{position:fixed;inset:0;pointer-events:none;background:var(--grad);z-index:-1}
+    .hero{display:flex;justify-content:center;padding:40px 0 30px;}
+    .panel{background:linear-gradient(135deg,#ffffff 0%,#fff1ed 85%);border:1px solid #f1e6e3;border-radius:var(--radius);padding:28px;box-shadow:var(--shadow)}
+    .kicker{font-size:.88rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#a16a62;margin:0 0 10px}
+    h1{font-size:clamp(34px,4.6vw,66px);line-height:1.04;margin:0 0 10px}
+    .tagline{font-size:clamp(15px,2vw,18px);color:var(--muted);margin:12px 0 18px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 18px;align-items:center;justify-content:center;}
+    .chip{background:#fff;border:1px dashed #e8d5d3;padding:10px 16px;border-radius:999px;font-weight:800;color:#7b4d48;transition:transform .2s}
+    .chip:hover{transform:translateY(-2px)}
+
+    .cta{margin-top: 22px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:10px;background:var(--brand);color:white;padding:12px 16px;border-radius:14px;font-weight:900;box-shadow:var(--shadow);transform:translateZ(0);transition:transform .15s ease, box-shadow .2s ease}
+    .btn:hover{transform:translateY(-2px)}
+    .btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--border)}
+
+    /* Hero visual */
+    .hero-visual{position:relative;min-height:420px}
+    .float{position:absolute;inset:auto; border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden; background:#fff}
+    .float img{width:100%;height:100%;object-fit:cover}
+    .f1{top:0;right:0;width:64%;aspect-ratio:4/3;transform-origin:60% 40%;animation:floaty 6s ease-in-out infinite}
+    .f2{left:0;bottom:6%;width:48%;aspect-ratio:4/3;transform-origin:40% 60%;animation:floaty 7.5s ease-in-out -1.2s infinite}
+    .f3{right:10%;bottom:-10px;width:36%;aspect-ratio:1/1;border-radius:999px;padding:10px;background:linear-gradient(180deg,#fff, #fff6ee);border:1px solid #f2e4df;display:flex;align-items:center;justify-content:center;font-weight:900}
+    .badgeCircle{display:inline-flex;align-items:center;gap:8px;font-size:12px}
+    .badgeCircle svg{width:18px;height:18px}
+
+    @keyframes floaty{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-8px) rotate(.6deg)}}
+
+    /* ===== Sections ===== */
+    .section{padding:32px 0}
+    .section h2{font-size:clamp(22px,2.4vw,30px);margin:0 0 12px}
+    .lead{color:var(--muted);max-width:62ch;}
+
+    .pillbar{margin-top: 20px !important;margin-bottom: 10px;display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 0}
+    .pill{border:1px dashed #e8d5d3;background:#fff;color:#7b4d48;padding:8px 12px;border-radius:999px;font-weight:800}
+
+    /* Cards / Menu */
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;transition:transform .2s ease, box-shadow .2s ease}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(0,0,0,.10)}
+    .card h3{margin:8px 0}
+    .price{font-weight:900;color:var(--brand)}
+    .muted{color:var(--muted)}
+    .food-img{width:100%;aspect-ratio:16/9;height:auto;object-fit:cover;border-radius:12px;border:1px solid #f0e7e6;margin-bottom:10px;transition:transform .4s ease}
+    @media (hover:hover){ .food-img:hover{transform:scale(1.04)} }
+    .francisco-img {width:100%;aspect-ratio:16/9;height:auto;object-fit:cover;border-radius:12px;border:1px solid #f0e7e6;margin-bottom:10px;transition:transform .4s ease}
+
+    .card .mini-cta{display:flex;gap:10px;margin-top:8px}
+    .card .mini-cta .ghost{background:#fff;border:1px solid var(--border);color:var(--ink)}
+
+    /* Steps */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .step{padding:18px;border:1px dashed #efd8d3;border-radius:16px;background:#fff}
+    .step b{display:block;margin-bottom:8px}
+
+    /* Testimonials */
+    .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .quote{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+    .stars{color:#d19e00;font-weight:900;letter-spacing:.1em}
+
+    /* CTA banner */
+    .cta-banner{position:relative;background:linear-gradient(135deg,#fff1ed 0%, #ffffff 85%);border:1px solid #f1e6e3;border-radius:22px;padding:24px;box-shadow:var(--shadow);overflow:hidden}
+    .cta-banner::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#fbe7df,transparent 60%);}    
+
+    /* Footer */
+    footer{border-top:1px solid var(--border);padding:22px 0 48px;color:var(--muted);margin-top:26px}
+
+    /* Reveal on scroll */
+    .reveal{opacity:0; transform:translateY(14px); filter:blur(2px)}
+    .reveal.revealed{opacity:1; transform:none; filter:none; transition:opacity .6s ease, transform .6s ease, filter .6s ease}
+
+    /* ===== Mobile tweaks ===== */
+    @media (max-width:1000px){ .hero{grid-template-columns:1fr} .hero-visual{min-height:320px} }
+    @media (max-width:900px){ .cards{grid-template-columns:1fr 1fr} .steps{grid-template-columns:1fr 1fr} .testimonials{grid-template-columns:1fr 1fr} }
+    @media (max-width:640px){
+      .nav{display:grid;grid-template-columns:1fr;grid-template-areas:"brand" "links" "lang";gap:8px;padding:8px 0;align-items:center}
+      .brand{grid-area:brand;gap:8px}
+      .brand .logo{width:34px;height:34px}
+      .brand .name b{font-size:15px}
+      .navlinks{grid-area:links;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start}
+      .navlinks a{padding:6px 10px;font-size:13.5px;border-radius:999px}
+      .lang{grid-area:lang;display:flex;gap:8px;justify-content:flex-end}
+      .panel{padding:16px}
+      h1{font-size:clamp(26px,7vw,34px);margin-bottom:8px}
+      .chips{gap:6px}
+      
+  /* Smaller chip labels on mobile */
+  .chips {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    justify-items: center;
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+
+  .chip {
+    width: 100%;
+    text-align: center;
+    padding: 5px 10px;      /* a bit thinner */
+    font-size: 10px;        /* smaller text */
+    font-weight: 600;       /* less bold so it feels lighter */
+    line-height: 1.2;
+    white-space: nowrap;    /* allow wrapping if needed */
+  }
+
+      .chip{padding:6px 10px;font-size:.92rem}
+      .cards{grid-template-columns:1fr}
+      .steps{grid-template-columns:1fr}
+      .testimonials{grid-template-columns:1fr}
+      
+        .panel h1{
+    font-size: 32px !important;   /* was huge before */
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+    white-space: normal !important;  /* allow nice wrapping */
+    text-align: center;               /* or 'center' if you prefer */
+  }
+    }
+
+    /* Accessible skip link */
+    .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip:focus{left:10px;top:10px;width:auto;height:auto;z-index:999;background:#fff;padding:10px 12px;border-radius:10px;border:1px solid var(--border)}
+    .panel h1 {font-size: 55px;line-height: 1.05;}
+    
+
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip">Skip to content</a>
+  <div class="page-bg"></div>
+
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <img src="assets/img/logo.png" alt="The Weekend Bite logo" class="logo" />
+        <div class="name"><b>The Weekend Bite</b><span>Torino • Fresh & Halal</span></div>
+      </div>
+
+      <nav class="navlinks">
+        <a class="active" href="index.html" data-i18n="nav.home">Home</a>
+        <a href="order.html" data-i18n="nav.order">Order <span id="order-count" class="order-count" style="display:none"></span></a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+        <a href="faq.html" data-i18n="nav.faq">FAQ</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+      </nav>
+
+      <div class="lang">
+        <button id="btn-en" class="active" aria-label="English">EN</button>
+        <button id="btn-it" aria-label="Italiano">IT</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <main id="main" class="container">
+    <section class="hero">
+      <div class="panel reveal">
+        
+      <div class="kicker" data-i18n="hero.kicker">Fresh &amp; Halal</div>
+
+      <h1 data-i18n="hero.h1">Homemade Lebanese Chicken Marinades</h1>
+
+      <div class="chips" aria-label="Featured flavors">
+        <div class="chip" data-i18n="hero.chip.tawook">Red Shish Tawook</div>
+        <div class="chip" data-i18n="hero.chip.shawarma">Lebanese Shawarma</div>
+        <div class="chip" data-i18n="hero.chip.fajita">Lebanese Fajita</div>
+        <div class="chip" data-i18n="hero.chip.francisco">Francisco</div>
+      </div>
+
+        <div class="pillbar" style="margin-top:14px">
+          <span class="pill">📍 Pickup: Corso Unione Sovietica, 561, 10135 Torino TO</span>
+        </div>
+          <div class="cta">
+          <a class="btn" href="order.html" aria-label="Go to order">Order for this week →</a>
+          <a class="btn secondary" href="#menu">See the menu</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Menu ===== -->
+    <section id="menu" class="section reveal">
+      <h2>Menu</h2>
+      <p class="lead">Choose your flavor(s). Each marinade is prepared from scratch with premium chicken and Lebanese spices.</p>
+      <div class="cards" style="margin-top:10px">
+        <article class="card">
+          <img class="food-img" src="assets/img/tawook_wide.jpg" alt="Red Shish Tawook" />
+          <h3>Red Shish Tawook <span class="price">€16/kg</span></h3>
+          <p class="muted">Marinated chicken with lemon & garlic taste.</p>
+          <div class="mini-cta">
+            <a class="btn" href="order.html#tawook">Add to order</a>
+            <a class="btn ghost" href="faq.html#how-to-cook">How to cook</a>
+          </div>
+        </article>
+        <article class="card">
+          <img class="food-img" src="assets/img/fajita_wide.png" alt="Lebanese Fajita" />
+          <h3>Lebanese Fajita <span class="price">€20/kg</span></h3>
+          <p class="muted">Marinated Chicken with mixed bell-pepper, corn & Lebanese spices.</p>
+          <div class="mini-cta">
+            <a class="btn" href="order.html#fajita">Add to order</a>
+            <a class="btn ghost" href="faq.html#how-to-cook">How to cook</a>
+          </div>
+        </article>
+        <article class="card">
+          <img class="food-img" src="assets/img/tawook_wide.png" alt="Lebanese Shawarma" />
+          <h3>Lebanese Shawarma <span class="price">€18/kg</span></h3>
+          <p class="muted">Marinated Chicken with special lebanese spices.</p>
+          <div class="mini-cta">
+            <a class="btn" href="order.html#shawarma">Add to order</a>
+            <a class="btn ghost" href="faq.html#how-to-cook">How to cook</a>
+          </div>
+        </article>
+        <article class="card">
+          <img class="food-img francisco-img" src="assets/img/fransisco1.jpg" alt="Francisco" />
+          <h3>Francisco <span class="price">€18/kg</span></h3>
+          <p class="muted">Herbed Marinated Chicken with special lebanese spices.</p>
+          <div class="mini-cta">
+            <a class="btn" href="order.html#francisco">Add to order</a>
+            <a class="btn ghost" href="faq.html#how-to-cook">How to cook</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== How it works ===== -->
+    <section class="section reveal">
+      <h2>How it works</h2>
+      <div class="steps" style="margin-top:10px">
+        <div class="step"><b>1) Order</b><span class="muted">Place your order on order page.<b> You will receive an automatic email with the payment link, and we’ll confirm your order as soon as the payment is received.</b></span></div>
+        <div class="step"><b>2) Preperation</b><span class="muted">We marinate fresh, high‑quality chicken in small batches.</span></div>
+        <div class="step"><b>3) Delivery/Pickup</b><span class="muted">Delivery in Torino or Pickup at<b>"Corso Unione Sovietica, 561, 10135 Torino TO"</b></span></div>
+        <div class="step"><b>4) Cook & Enjoy</b><span class="muted">Pan, grill, or air‑fryer. Lunch/Dinner in minutes.</span></div>
+      </div>
+    </section>
+
+    <!-- ===== Storage & safety ===== -->
+    <section class="section reveal">
+      <h2>Storage &amp; safety</h2>
+      <div class="panel">
+        <ul>
+          <li>Keep refrigerated (≤ 4&nbsp;°C) and <b>consume within 3 days</b>.</li>
+          <li>Or <b>freeze immediately</b> upon delivery and consume when you like. Thaw in the fridge before cooking.</li>
+        </ul>
+        <p class="muted" style="margin-top:8px;">Always cook chicken thoroughly until juices run clear.</p>
+      </div>
+    </section>
+ 
+        <!-- ===== Social proof (delete for now):
+    
+        <section class="section reveal">
+      <h2>What people say</h2>
+      <div class="testimonials" style="margin-top:10px">
+        <div class="quote">
+          <div class="stars">★★★★★</div>
+          “Best tawook I’ve had in Torino. Super tender and flavorful!”
+          <div class="muted" style="margin-top:6px">— Marco P.</div>
+        </div>
+        <div class="quote">
+          <div class="stars">★★★★★</div>
+          “So convenient for weekends with friends. Shawarma is a hit.”
+          <div class="muted" style="margin-top:6px">— Rania A.</div>
+        </div>
+        <div class="quote">
+          <div class="stars">★★★★★</div>
+          “Great value, fast delivery, authentic Lebanese taste.”
+          <div class="muted" style="margin-top:6px">— Giulia M.</div>
+        </div>
+      </div>
+    </section>
+    
+    ===== -->
+    
+    <!-- ===== Final CTA ===== -->
+    <section class="section reveal">
+      <div class="cta-banner">
+        <h2 style="margin:0 0 6px">Limited weekly batches</h2>
+        <p class="lead">Reserve your flavors now—freshly marinated every week.</p>
+        <div class="cta" style="margin-top:10px">
+          <a class="btn" href="order.html">Order now →</a>
+          <a class="btn secondary" href="contact.html">Questions? Contact us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="muted">© 2025 The Weekend Bite. <span>All rights reserved.</span></div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== IntersectionObserver for scroll-reveal =====
+    const onReveal = (entries, obs)=>{
+      for(const e of entries){ if(e.isIntersecting){ e.target.classList.add('revealed'); obs.unobserve(e.target); } }
+    };
+    const io = new IntersectionObserver(onReveal, {threshold: .08});
+    document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+
+    // ===== Tiny parallax on hero visual (desktop only) =====
+    const hv = document.querySelector('.hero-visual');
+    if (hv && matchMedia('(pointer:fine)').matches){
+      hv.addEventListener('mousemove', (e)=>{
+        const r = hv.getBoundingClientRect();
+        const rx = (e.clientX - r.left) / r.width - .5; // -0.5..0.5
+        const ry = (e.clientY - r.top) / r.height - .5;
+        hv.querySelectorAll('.float').forEach((el, i)=>{
+          const depth = (i+1) * 6; // simple depth factor
+          el.style.transform = `translate(${rx*depth}px, ${ry*depth}px)`;
+        });
+      });
+      hv.addEventListener('mouseleave', ()=>{
+        hv.querySelectorAll('.float').forEach((el)=> el.style.transform = '');
+      })
+    }
+
+    // ===== Language toggles (optional placeholders if your i18n is wired) =====
+    const enBtn = document.getElementById('btn-en');
+    const itBtn = document.getElementById('btn-it');
+    function setLang(lang){
+      enBtn.classList.toggle('active', lang==='en');
+      itBtn.classList.toggle('active', lang==='it');
+      // Hook into your existing i18n if needed
+      // window.setLanguage?.(lang)
+    }
+    enBtn?.addEventListener('click', ()=> setLang('en'));
+    itBtn?.addEventListener('click', ()=> setLang('it'));
+  </script>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/i18n.dict.js?v=1"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/backend.js"></script>
+
+</body>
+</html>

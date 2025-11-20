@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Satispay Redirect</title>
+  </head>
+  <body style="font-family:Arial;padding:30px;text-align:center;">
+    <h3>Opening Satispay…</h3>
+
+    <script>
+      // Read amount from URL
+      const url = new URL(window.location.href);
+      const amount = url.searchParams.get("amount") || "0";
+
+      // Deep link
+      const deep = `satispay://payment?recipient=%2B393201775661&amount=${amount}&currency=EUR`;
+
+      // Try to open Satispay
+      window.location.href = deep;
+
+      // Fallback button
+      document.write(`<p>If you are not redirected, <a href="${deep}">tap here</a>.</p>`);
+    </script>
+  </body>
+</html>

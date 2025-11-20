@@ -1,0 +1,457 @@
+/** ---- CONFIG ---- **/
+const SHEET_ID     = '1JK3ybIsYrMhb3PifwmedKbQcY5Jy6IZnucRjY_Xc5aw';     // e.g. 1AbC... from the Sheet URL
+const SHEET_NAME   = 'Orders';
+const NOTIFY_EMAIL = 'thewkndbitetorino@gmail.com';
+const TZ           = 'Europe/Rome';
+const FROM_NAME    = 'The Weekend Bite';           // shows as sender name in inbox
+const REPLY_TO     = 'thewkndbitetorino@gmail.com'; // replies go here
+
+// (Optional) for quick pay links in the email:
+const REVOLUT_USER = 'ibrahip44g';                 // e.g. revolut.me/yourrevolut
+//const SATISPAY_TAG = 'd1ef756d-148f-4a18-90f5-15d5faa52362'; // e.g. tag.satispay.com/yoursatispay
+
+// Satispay recipient (phone number of your Satispay Business account)
+const SATISPAY_TAG = '+393201775661';
+
+const CURRENCY     = 'EUR';
+
+// Server-authoritative delivery rules
+const DELIVERY_FEE_FIXED = 2;   // €2 for delivery
+const ALLOWED_SLOTS = [
+  { dow: 'Wed', start: '18:00', end: '20:00' },
+  { dow: 'Sat', start: '10:00', end: '12:00' }
+];
+
+/** ---- HELPERS ---- **/
+function escapeHtml(s){
+  return String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'}[m]));
+}
+function appendByHeader_(sheet, obj){
+  const lastCol = sheet.getLastColumn() || 1;
+  const headers = sheet.getRange(1,1,1,lastCol).getValues()[0];
+  const row = headers.map(h => (Object.prototype.hasOwnProperty.call(obj, h) ? obj[h] : ''));
+  sheet.appendRow(row);
+}
+function ensureHeaders_(sheet, headersWanted){
+  const lastCol = sheet.getLastColumn() || 0;
+  const existing = lastCol ? sheet.getRange(1,1,1,lastCol).getValues()[0] : [];
+  let col = existing.length;
+  headersWanted.forEach(h => {
+    if (!existing.includes(h)){
+      sheet.insertColumnAfter(Math.max(col,1));
+      col = sheet.getLastColumn();
+      sheet.getRange(1, col).setValue(h);
+      existing.push(h);
+    }
+  });
+}
+
+/** Validate and normalize a delivery slot coming from client.
+ *  Expects an object {date, startISO, endISO, label}
+ *  Enforces:
+ *   - Day must be Wed or Sat
+ *   - Window must be Wed 18:00–20:00 or Sat 10:00–12:00 (TZ aware)
+ *   - Same-day delivery is not allowed (in Europe/Rome)
+ *  Returns: { ok:true, label, dateStr, startISO, endISO } or { ok:false, error }
+ */
+function validateDeliverySlot_(slot){
+  if (!slot || typeof slot !== 'object') {
+    return { ok:false, error:'missing_delivery_slot' };
+  }
+  // Parse start/end as dates; rely on ISO fields first
+  let start = null, end = null;
+  try {
+    start = slot.startISO ? new Date(slot.startISO) : (slot.date ? new Date(slot.date + 'T00:00:00Z') : null);
+    end   = slot.endISO   ? new Date(slot.endISO)   : null;
+  } catch(_){}
+  if (!start || !isFinite(start.getTime())) return { ok:false, error:'invalid_slot_start' };
+  if (!end   || !isFinite(end.getTime()))   return { ok:false, error:'invalid_slot_end' };
+
+  // Compute values in Europe/Rome
+  const dayShort = Utilities.formatDate(start, TZ, 'EEE');      // Wed / Sat
+  const startHM  = Utilities.formatDate(start, TZ, 'HH:mm');    // 18:00 / 10:00
+  const endHM    = Utilities.formatDate(end,   TZ, 'HH:mm');    // 20:00 / 12:00
+  const dateStr  = Utilities.formatDate(start, TZ, 'yyyy-MM-dd'); // e.g., 2025-11-22
+
+  // Same-day block (compare calendar dates in TZ)
+  const todayStr = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+  if (dateStr === todayStr) return { ok:false, error:'same_day_delivery_not_allowed' };
+
+  // Must match one of the allowed windows
+  const allowed = ALLOWED_SLOTS.some(s => s.dow === dayShort && s.start === startHM && s.end === endHM);
+  if (!allowed) return { ok:false, error:'slot_not_in_allowed_windows' };
+
+  const label = Utilities.formatDate(start, TZ, 'EEE dd MMM') + `, ${startHM}–${endHM}`;
+  return { ok:true, label, dateStr, startISO:start.toISOString(), endISO:end.toISOString() };
+}
+
+/** ---- API ---- **/
+function doPost(e){
+  try{
+    const raw  = (e && e.postData) ? e.postData.contents : '{}';
+    const data = JSON.parse(raw || '{}');
+
+    // honeypot
+    if (data.hp && String(data.hp).trim() !== '') {
+      return ContentService.createTextOutput(JSON.stringify({ok:false, error:'spam'})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
+    if (!sheet) throw new Error('Missing sheet "' + SHEET_NAME + '"');
+
+    // columns we want to maintain
+    const HEADERS = [
+      'Timestamp','Order ID','Name','Phone','Email','Address',
+      'Items JSON','Items (pretty)','Items Total',
+      'Fulfillment Mode','Delivery Slot Date','Delivery Slot Window','Delivery Slot Start ISO','Delivery Slot End ISO',
+      'Delivery Fee','Include Delivery',
+      'Payable Total','Currency','Payment Method','Notes','Allergies','Lang','UA'
+    ];
+    ensureHeaders_(sheet, HEADERS);
+
+    // server ts & id
+    const ts = new Date();
+    const id = 'WB-' + Utilities.formatDate(ts, TZ, 'yyyyMMdd-HHmmss') + '-' +
+               Math.floor(Math.random()*1000).toString().padStart(3,'0');
+
+    const items = Array.isArray(data.items) ? data.items : [];
+
+    // Recompute base items total on server (trust but verify)
+    const itemsTotal = items.reduce((s,it)=> s + (Number(it.price)||0) * (Number(it.qty)||0), 0);
+
+    // Fulfillment normalization
+    const mode = (data.fulfillment_mode === 'delivery') ? 'delivery' : 'pickup';
+
+    // Validate / normalize delivery slot if delivery selected
+    let slotLabel = '';
+    let slotDate  = '';
+    let slotStartISO = '';
+    let slotEndISO   = '';
+    if (mode === 'delivery') {
+      const slotObj = (typeof data.delivery_slot === 'string') ? JSON.parse(data.delivery_slot) : data.delivery_slot;
+      const vs = validateDeliverySlot_(slotObj);
+      if (!vs.ok) {
+        return ContentService
+          .createTextOutput(JSON.stringify({ ok:false, error: 'invalid_delivery_slot', reason: vs.error }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      slotLabel    = vs.label;
+      slotDate     = vs.dateStr;
+      slotStartISO = vs.startISO;
+      slotEndISO   = vs.endISO;
+    }
+
+    // Delivery fee: server authoritative
+    const includeDelivery = (mode === 'delivery');
+    const delFee = includeDelivery ? DELIVERY_FEE_FIXED : 0;
+
+    const payable = itemsTotal + delFee;
+
+    // READABLE multi-line list — includes item notes when present
+    const itemsPretty = items.map(it => {
+      const lt   = (Number(it.price)||0) * (Number(it.qty)||0);
+      const note = it.notes ? ` | note: ${it.notes}` : '';
+      return `${it.name} — ${it.qty} kg @ €${it.price}/kg = €${lt.toFixed(2)}${note}`;
+    }).join('\n');
+
+    // write row by header name
+    appendByHeader_(sheet, {
+      'Timestamp'            : Utilities.formatDate(ts, TZ, 'yyyy-MM-dd HH:mm:ss'),
+      'Order ID'             : id,
+      'Name'                 : data.name || '',
+      'Phone'                : data.phone || '',
+      'Email'                : data.email || '',
+      'Address'              : data.address || '',
+      'Items JSON'           : JSON.stringify(items),
+      'Items (pretty)'       : itemsPretty,
+      'Items Total'          : Number(itemsTotal.toFixed(2)),
+      'Fulfillment Mode'     : mode,
+      'Delivery Slot Date'   : slotDate,
+      'Delivery Slot Window' : slotLabel,
+      'Delivery Slot Start ISO': slotStartISO,
+      'Delivery Slot End ISO'  : slotEndISO,
+      'Delivery Fee'         : Number(delFee.toFixed(2)),
+      'Include Delivery'     : includeDelivery ? 'yes' : 'no',
+      'Payable Total'        : Number(payable.toFixed(2)),
+      'Currency'             : (data.currency || CURRENCY || 'EUR'),
+      'Payment Method'       : (data.pay_method || 'none'),
+      'Notes'                : data.notes || '',
+      'Allergies'            : data.allergies || '',
+      'Lang'                 : data.lang || '',
+      'UA'                   : data.ua || ''
+    });
+
+    // Wrap the "Items (pretty)" cell so multiple lines are visible
+    const lastRow = sheet.getLastRow();
+    const hdrRow  = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+    const prettyCol = hdrRow.indexOf('Items (pretty)') + 1;
+    if (prettyCol > 0) sheet.getRange(lastRow, prettyCol).setWrap(true);
+
+    // Build admin email body
+    const itemsLines = items.map(it => {
+      const base = `- ${escapeHtml(it.name)} — ${escapeHtml(it.qty)} kg @ €${escapeHtml(it.price)}/kg`;
+      const note = it.notes ? ` <span style="color:#555;">(<b>note:</b> ${escapeHtml(it.notes)})</span>` : '';
+      return base + note;
+    }).join('<br>');
+
+    const revolutLink = REVOLUT_USER
+  ? `https://revolut.me/${encodeURIComponent(REVOLUT_USER)}?amount=${payable.toFixed(2)}&currency=${encodeURIComponent(CURRENCY)}`
+  : '';
+
+    // Web app URL used as redirect to Satispay
+    //const webAppUrl = ScriptApp.getService().getUrl();
+
+    const satispayLink =
+      `https://web.satispay.com/download/qrcode/S6Y-CON--D1EF756D-148F-4A18-90F5-15D5FAA52362?amount=${payable.toFixed(2)}`;
+
+
+
+    const fulfillmentHtml = (mode === 'delivery')
+      ? `<b>Fulfillment:</b> Delivery (+€${delFee.toFixed(2)})<br><b>Slot:</b> ${escapeHtml(slotLabel)}`
+      : `<b>Fulfillment:</b> Pickup (no fee)`;
+
+    const html = `
+      <div style="font-family:Arial,Helvetica,sans-serif">
+        <h3 style="margin:0 0 8px">New Order: ${escapeHtml(id)}</h3>
+        <p><b>Name:</b> ${escapeHtml(data.name)}<br>
+           <b>Phone:</b> ${escapeHtml(data.phone)}<br>
+           <b>Email:</b> ${escapeHtml(data.email || '')}<br>
+           <b>Address:</b> ${escapeHtml(data.address)}</p>
+
+        <p>${fulfillmentHtml}</p>
+
+        <p><b>Items:</b><br>${itemsLines || '(none)'}</p>
+
+        <p>
+          <b>Items total:</b> €${itemsTotal.toFixed(2)}<br>
+          <b>Delivery fee:</b> €${delFee.toFixed(2)} (${includeDelivery ? 'included' : 'not included'})<br>
+          <b>Payable total:</b> €${payable.toFixed(2)} ${escapeHtml(data.currency || CURRENCY || 'EUR')}<br>
+          <b>Payment method:</b> ${escapeHtml(data.pay_method || 'none')}
+        </p>
+
+        ${(revolutLink || satispayLink) ? `
+        <p><b>Quick pay:</b><br>
+          ${revolutLink ? `<a href="${revolutLink}">Revolut for €${payable.toFixed(2)}</a><br>` : ``}
+          ${satispayLink ? `<a href="${satispayLink}">Satispay for €${payable.toFixed(2)}</a>` : ``}
+        </p>` : ``}
+
+        <p><b>Notes:</b> ${escapeHtml(data.notes || '')}<br>
+           <b>Allergies:</b> ${escapeHtml(data.allergies || '')}</p>
+
+        <p style="color:#888"><b>Lang:</b> ${escapeHtml(data.lang || '')}<br>
+           <b>UA:</b> ${escapeHtml(data.ua || '')}</p>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: NOTIFY_EMAIL,
+      subject: `New Order: ${id} (Payable €${payable.toFixed(2)})`,
+      htmlBody: html,
+      name: FROM_NAME,
+      replyTo: REPLY_TO
+    });
+
+    // --- Customer confirmation (includes fulfillment + slot if delivery)
+    (function sendClientEmail(){
+      var customerEmail = (data.email || '').trim();
+      if (!customerEmail) return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return;
+
+      var revLink = REVOLUT_USER
+        ? `https://revolut.me/${encodeURIComponent(REVOLUT_USER)}?amount=${payable.toFixed(2)}&currency=${encodeURIComponent(CURRENCY)}`
+        : '';
+
+      var satLink =
+        `https://web.satispay.com/download/qrcode/S6Y-CON--D1EF756D-148F-4A18-90F5-15D5FAA52362?amount=${payable.toFixed(2)}`;
+
+  var fulfillmentLines = (mode === 'delivery')
+  ? `
+     <div><b>Fulfillment:</b> Delivery (+€${delFee.toFixed(2)})</div>
+     <div><b>Slot:</b> ${escapeHtml(slotLabel)}</div>
+    `
+  : `
+     <div><b>Fulfillment:</b> Pickup (no fee)</div>
+     <div><b>Pickup location:</b> Corso Unione Sovietica, 561, 10135 Torino</div>
+    `;
+
+
+      var clientHtml = `
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7fb;margin:0;padding:24px 0;font-family:Arial,Helvetica,sans-serif;color:#0f172a;line-height:1.5">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:14px;box-shadow:0 6px 24px rgba(2,18,33,.06);overflow:hidden;border:1px solid #eaeaea">
+          <!-- Header -->
+          <tr>
+            <td style="padding:20px 24px;background:#0ea5e9;color:#ffffff">
+              <div style="font-size:14px;opacity:.95;letter-spacing:.2px">Order Confirmation</div>
+              <div style="font-size:20px;font-weight:700;margin-top:4px">Thanks! We received your order.</div>
+            </td>
+          </tr>
+
+          <!-- Order meta -->
+          <tr>
+            <td style="padding:20px 24px 8px">
+              <div style="margin:0 0 8px">
+                <span style="display:inline-block;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;font-family:Consolas,Monaco,Menlo,monospace;font-size:12px;color:#334155">
+                  Order ID: <strong>${escapeHtml(id)}</strong>
+                </span>
+              </div>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 0">
+                <tr>
+                  <td style="padding:0 0 10px;vertical-align:top">
+                    <div style="font-weight:700;margin-bottom:6px">Customer</div>
+                    <div><b>Name:</b> ${escapeHtml(data.name)}</div>
+                    <div><b>Phone:</b> <span dir="ltr">${escapeHtml(data.phone)}</span></div>
+                    <div><b>Address:</b> ${escapeHtml(data.address)}</div>
+                    ${fulfillmentLines}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Items -->
+          <tr>
+            <td style="padding:8px 24px 0">
+              <div style="font-weight:700;margin:0 0 8px">Order summary</div>
+              <div style="padding:12px 14px;border:1px solid #eaeaea;border-radius:10px;background:#fcfcfd;white-space:pre-line;font-family:ui-monospace,Consolas,Monaco,Menlo,monospace;font-size:13px;color:#334155">
+                ${escapeHtml(itemsPretty)}
+              </div>
+            </td>
+          </tr>
+
+          <!-- Totals -->
+          <tr>
+            <td style="padding:14px 24px 0">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
+                <tr>
+                  <td style="padding:6px 0;color:#475569">Items total</td>
+                  <td align="right" style="padding:6px 0;color:#0f172a"><strong>€${itemsTotal.toFixed(2)}</strong></td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 0;color:#475569">Delivery fee <span style="color:#94a3b8">(${includeDelivery ? 'included' : 'not included'})</span></td>
+                  <td align="right" style="padding:6px 0;color:#0f172a"><strong>€${delFee.toFixed(2)}</strong></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-top:1px solid #eaeaea;font-weight:700">To pay</td>
+                  <td align="right" style="padding:10px 0;border-top:1px solid #eaeaea;font-weight:800;font-size:18px">
+                    €${(itemsTotal + delFee).toFixed(2)} <span style="font-weight:600;color:#64748b">${escapeHtml(data.currency || CURRENCY || 'EUR')}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Payment -->
+          ${(revLink || satLink) ? `
+          <tr>
+            <td style="padding:10px 24px 0">
+              <div style="font-weight:700;margin:4px 0 8px">How to pay</div>
+              <div style="margin:0 0 14px;color:#475569">
+                Please complete payment using one of the options below. We’ll confirm your order once the payment is received.
+              </div>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%">
+                <tr>
+                  <td align="left" style="padding:0 0 8px">
+ ${revLink ? `
+  <a href="${revLink}"
+     style="
+       display:inline-block;
+       width:auto;
+       background:#0ea5e9;
+       color:#ffffff;
+       text-decoration:none;
+       padding:12px 18px;
+       border-radius:8px;
+       font-weight:700;
+       text-align:center;
+       border:1px solid #0ea5e9;
+       font-size:14px;
+       min-width:220px;
+       margin-bottom:12px; 
+     ">
+     Pay with Revolut (€${(itemsTotal + delFee).toFixed(2)})
+  </a>
+  ` : ``}
+
+  ${satLink ? `
+  <a href="${satLink}"
+     style="
+       display:inline-block;
+       width:auto;
+       background:#111827;
+       color:#ffffff;
+       text-decoration:none;
+       padding:12px 18px;
+       border-radius:8px;
+       font-weight:700;
+       text-align:center;
+       border:1px solid #111827;
+       font-size:14px;
+       min-width:220px;
+     ">
+     Pay with Satispay (€${(itemsTotal + delFee).toFixed(2)})
+  </a>
+
+      <div style="margin-top:16px;font-size:14px;color:#374151;line-height:1.5;">
+    <b>To complete your Satispay payment:</b><br>
+    Please add our account manually in Satispay:<br>
+    📱 <b>+393201775661</b><br>
+    🏷️ <b>TheWeekendBite</b><br>
+    After saving the contact, select it to send the payment.
+  </div>
+
+  ` : ``}
+
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          ` : `
+          <tr>
+            <td style="padding:10px 24px 0">
+              <div style="font-weight:700;margin:4px 0 8px">Next steps</div>
+              <div style="margin:0 0 14px;color:#475569">
+                We’ll contact you shortly with payment instructions and delivery timing.
+              </div>
+            </td>
+          </tr>
+          `}
+
+          <!-- Footer note -->
+          <tr>
+            <td style="padding:16px 24px 22px">
+              <div style="font-size:12px;color:#64748b">
+                If any detail is wrong, just reply to this email and we’ll fix it.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+`;
+
+      MailApp.sendEmail({
+        to: customerEmail,
+        subject: `We received your order – ${id}`,
+        htmlBody: clientHtml,
+        name: FROM_NAME,
+        replyTo: REPLY_TO
+      });
+    })();
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok:true, id }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err){
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok:false, error:String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+}

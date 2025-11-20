@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About • The Weekend Bite</title>
+  <meta name="description" content="Our story: Lebanese family recipes brought to Torino with weekend delivery." />
+  <meta name="theme-color" content="#9a1a12" />
+  <link rel="icon" href="assets/img/logo.png" type="image/svg+xml">
+
+  <style>
+    :root{
+      --bg:#fff8f6; --panel:#ffffff; --ink:#1e1e1e; --muted:#5b5b5b; --brand:#9a1a12; --brand-2:#f1c22e;
+      --border:#eee; --radius:18px; --shadow:0 12px 32px rgba(10,10,10,.08);
+      --glass:rgba(255,255,255,0.65); --ink-2:#2a2a2a; --success:#1a7f37;
+      --grad: radial-gradient(1200px 600px at 20% -10%, rgba(241,194,46,.18), transparent 60%),
+              radial-gradient(900px 600px at 110% -20%, rgba(154,26,18,.12), transparent 60%),
+              radial-gradient(800px 600px at 60% 120%, rgba(154,26,18,.10), transparent 60%);
+    }
+
+        html{
+      overflow-y: scroll;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg)}
+    a{color:var(--brand);text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{width:min(1180px,92%);margin:0 auto}
+
+    /* ===== Header ===== */
+    header{position:sticky;top:0;background:var(--glass);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:40}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .brand .logo{width:38px;height:38px;border-radius:12px;box-shadow:var(--shadow)}
+    .brand .name{display:flex;flex-direction:column;line-height:1}
+    .brand .name b{font-size:16px}
+    .brand .name span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+
+    .navlinks{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .navlinks a{padding:8px 12px;border-radius:999px;font-weight:700;color:#333;position:relative}
+    .navlinks a:is(:hover,.active){background:rgba(154,26,18,.08)}
+    .navlinks a.active::after{content:"";position:absolute;inset:auto 10px -6px 10px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--brand),var(--brand-2));}
+
+    .lang{display:flex;gap:6px;align-items:center}
+    .lang button{border:1px solid #ddd;background:#fff;padding:6px 10px;border-radius:999px;cursor:pointer;font-weight:800}
+    .lang button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+    .page-bg{position:fixed;inset:0;pointer-events:none;background:var(--grad);z-index:-1}
+
+    /* ===== Sections ===== */
+    main{padding:24px 0 40px}
+    .section{padding:32px 0}
+    .section h1,
+    .section h2{font-size:clamp(24px,2.6vw,30px);margin:0 0 12px}
+    .lead{color:var(--muted);max-width:62ch}
+    .muted{color:var(--muted)}
+
+    /* Cards & layout */
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px 20px;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(0,0,0,.10)}
+
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:18px;
+      align-items:flex-start;
+    }
+
+    /* Footer */
+    footer{border-top:1px solid var(--border);padding:22px 0 48px;color:var(--muted);margin-top:26px}
+
+    /* ===== Mobile tweaks ===== */
+    @media (max-width:900px){
+      .grid-2{grid-template-columns:1fr}
+    }
+    @media (max-width:640px){
+      .nav{display:grid;grid-template-columns:1fr;grid-template-areas:"brand" "links" "lang";gap:8px;padding:8px 0;align-items:center}
+      .brand{grid-area:brand;gap:8px}
+      .brand .logo{width:34px;height:34px}
+      .brand .name b{font-size:15px}
+      .navlinks{grid-area:links;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start}
+      .navlinks a{padding:6px 10px;font-size:13.5px;border-radius:999px}
+      .lang{grid-area:lang;display:flex;gap:8px;justify-content:flex-end}
+      .section {padding-top: 12px !important;}
+    }
+
+    /* Accessible skip link */
+    .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip:focus{left:10px;top:10px;width:auto;height:auto;z-index:999;background:#fff;padding:10px 12px;border-radius:10px;border:1px solid var(--border)}
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip">Skip to content</a>
+  <div class="page-bg"></div>
+
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <img src="assets/img/logo.png" alt="The Weekend Bite logo" class="logo" />
+        <div class="name">
+          <b>The Weekend Bite</b>
+          <span>Torino • Fresh &amp; Halal</span>
+        </div>
+      </div>
+
+      <nav class="navlinks">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="order.html" data-i18n="nav.order">
+          Order
+          <span id="order-count" style="display:none"></span>
+        </a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+        <a href="faq.html" data-i18n="nav.faq">FAQ</a>
+        <a class="active" href="about.html" data-i18n="nav.about">About</a>
+      </nav>
+
+      <div class="lang">
+        <button id="btn-en" class="active" aria-label="English">EN</button>
+        <button id="btn-it" aria-label="Italiano">IT</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <section class="section">
+      <h1 data-i18n="about.title">Our Story</h1>
+      <p class="lead">
+        We’re a small family-run Lebanese kitchen in Torino, bringing the flavors we grew up with to your table.
+      </p>
+
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card">
+          <p>
+            We marinate fresh, halal chicken using Lebanese family recipes and
+            deliver every week—so your grill or pan is always ready for an easy, flavorful meal.
+          </p>
+          <p>
+            Every batch is made in small quantities, with attention to quality, hygiene, and taste.
+            You choose your flavors, we prepare everything, and your lunch/dinner is just a quick cook away.
+          </p>
+          <p>
+            Quality, simplicity, and friendly service. That’s our promise.
+          </p>
+        </div>
+
+        <div class="card">
+          <ul class="muted">
+            <li>Made fresh weekly in Torino</li>
+            <li>Transparent pricing per kilogram</li>
+            <li>Clear storage information</li>
+            <li>Orders saved in our secure system and confirmed by email</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="muted">© 2025 The Weekend Bite. <span>All rights reserved.</span></div>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/i18n.dict.js?v=1"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/backend.js"></script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".navlinks a").forEach(link => {
+    let linkPath = link.getAttribute("href")
+      .replace(".html", "")      // remove .html
+      .replace("index", "");     // home page
+
+    let currentPath = window.location.pathname.replace(/\/$/, "");
+
+    if (currentPath === "" && linkPath === "") {
+      link.classList.add("active");
+    } else if (currentPath.includes(linkPath) && linkPath !== "") {
+      link.classList.add("active");
+    }
+  });
+});
+</script>
+
+  
+</body>
+</html>

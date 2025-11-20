@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order • The Weekend Bite</title>
+  <meta name="description" content="Build your order in an Excel-style grid and submit it to our system." />
+  <meta name="theme-color" content="#9a1a12" />
+  <link rel="icon" href="assets/img/logo.png" type="image/svg+xml">
+
+  <!-- type + icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ====== GLOBAL STYLES (copied from index.html) ====== */
+    :root{
+      --bg:#fff8f6; --panel:#ffffff; --ink:#1e1e1e; --muted:#5b5b5b; --brand:#9a1a12; --brand-2:#f1c22e;
+      --border:#eee; --radius:18px; --shadow:0 12px 32px rgba(10,10,10,.08);
+      --glass:rgba(255,255,255,0.65); --ink-2:#2a2a2a; --success:#1a7f37;
+      --grad: radial-gradient(1200px 600px at 20% -10%, rgba(241,194,46,.18), transparent 60%),
+              radial-gradient(900px 600px at 110% -20%, rgba(154,26,18,.12), transparent 60%),
+              radial-gradient(800px 600px at 60% 120%, rgba(154,26,18,.10), transparent 60%);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg)}
+    a{color:var(--brand);text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{width:min(1180px,92%);margin:0 auto}
+
+    /* ===== Header ===== */
+    header{position:sticky;top:0;background:var(--glass);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:40}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .brand .logo{width:38px;height:38px;border-radius:12px;box-shadow:var(--shadow)}
+    .brand .name{display:flex;flex-direction:column;line-height:1}
+    .brand .name b{font-size:16px}
+    .brand .name span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+
+    .navlinks{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .navlinks a{padding:8px 12px;border-radius:999px;font-weight:700;color:#333;position:relative}
+    .navlinks a:is(:hover,.active){background:rgba(154,26,18,.08)}
+    .navlinks a.active::after{content:"";position:absolute;inset:auto 10px -6px 10px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--brand),var(--brand-2));}
+
+    .lang{display:flex;gap:6px;align-items:center}
+    .lang button{border:1px solid #ddd;background:#fff;padding:6px 10px;border-radius:999px;cursor:pointer;font-weight:800}
+    .lang button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+    /* ===== Hero base ===== */
+    .page-bg{position:fixed;inset:0;pointer-events:none;background:var(--grad);z-index:-1}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:28px 0 10px}
+    .panel{background:linear-gradient(135deg,#ffffff 0%,#fff1ed 85%);border:1px solid #f1e6e3;border-radius:var(--radius);padding:28px;box-shadow:var(--shadow)}
+    .kicker{font-size:.88rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#a16a62;margin:0 0 10px}
+    h1{font-size:clamp(34px,4.6vw,66px);line-height:1.04;margin:0 0 10px}
+    .tagline{font-size:clamp(15px,2vw,18px);color:var(--muted);margin:12px 0 18px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 18px;align-items:center}
+    .chip{background:#fff;border:1px dashed #e8d5d3;padding:10px 16px;border-radius:999px;font-weight:800;color:#7b4d48;transition:transform .2s}
+    .chip:hover{transform:translateY(-2px)}
+
+    .cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:10px;background:var(--brand);color:white;padding:12px 16px;border-radius:14px;font-weight:900;box-shadow:var(--shadow);transform:translateZ(0);transition:transform .15s ease, box-shadow .2s ease}
+    .btn:hover{transform:translateY(-2px)}
+    .btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--border)}
+
+    /* (hero-visual & other home-only stuff can stay; they just won't be used here) */
+    .hero-visual{position:relative;min-height:420px}
+    .float{position:absolute;inset:auto; border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden; background:#fff}
+    .float img{width:100%;height:100%;object-fit:cover}
+    .f1{top:0;right:0;width:64%;aspect-ratio:4/3;transform-origin:60% 40%;animation:floaty 6s ease-in-out infinite}
+    .f2{left:0;bottom:6%;width:48%;aspect-ratio:4/3;transform-origin:40% 60%;animation:floaty 7.5s ease-in-out -1.2s infinite}
+    .f3{right:10%;bottom:-10px;width:36%;aspect-ratio:1/1;border-radius:999px;padding:10px;background:linear-gradient(180deg,#fff, #fff6ee);border:1px solid #f2e4df;display:flex;align-items:center;justify-content:center;font-weight:900}
+    .badgeCircle{display:inline-flex;align-items:center;gap:8px;font-size:12px}
+    .badgeCircle svg{width:18px;height:18px}
+
+.grid-3 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;           /* space between the cards */
+}
+
+/* Make each card inside grid-3 full width (same as before) */
+.grid-3 > .card {
+  width: 100%;
+}
+
+    @keyframes floaty{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-8px) rotate(.6deg)}}
+
+    /* Sections, cards, footer etc. (same as index) */
+    .section{padding:32px 0}
+    .section h2{font-size:clamp(22px,2.4vw,30px);margin:0 0 12px}
+    .lead{color:var(--muted);max-width:62ch}
+    .muted{color:var(--muted)}
+
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;transition:transform .2s ease, box-shadow .2s ease}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(0,0,0,.10)}
+
+    footer{border-top:1px solid var(--border);padding:22px 0 48px;color:var(--muted);margin-top:26px}
+
+    @media (max-width:1000px){ .hero{grid-template-columns:1fr} .hero-visual{min-height:320px} }
+
+@media (max-width:640px){
+
+  /* HEADER (same structure, just a bit tighter) */
+  .nav{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "links"
+      "lang";
+    gap: 8px;
+    padding: 8px 0;
+    align-items: center;
+  }
+  .brand{
+    grid-area: brand;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand .logo{
+    width: 34px;
+    height: 34px;
+  }
+  .brand .name b{
+    font-size: 15px;
+  }
+  .brand .name span{
+    font-size: 11px;
+  }
+
+  .navlinks{
+    grid-area: links;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+  .navlinks a{
+    padding: 6px 10px;
+    font-size: 13.5px;
+    border-radius: 999px;
+  }
+
+  .lang{
+    grid-area: lang;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  /* HERO – smaller and narrower on phone */
+  .hero{
+    padding: 20px 0 12px;
+  }
+
+  .panel{
+    padding: 18px 16px;
+    max-width: 360px;        /* <— make card narrower */
+    margin: 0 auto;          /* center it */
+  }
+
+  .panel h1{
+    font-size: 30px;         /* smaller title */
+    line-height: 1.2;
+    margin: 6px 0 8px;
+    white-space: normal;
+    text-align: left;        /* use 'center' if you prefer */
+  }
+
+  .kicker{
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+
+  .tagline{
+    font-size: 15px;
+    margin: 6px 0 10px;
+  }
+
+  .chips {
+    display: flex !important;
+    flex-direction: column !important; /* one chip per line */
+    align-items: stretch !important;
+    gap: 8px !important;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .chip {
+    width: 100%;
+    white-space: nowrap;           /* no internal wrapping */
+    text-align: left;
+    justify-content: flex-start;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  /* ORDER SECTION – bring it closer and narrow card */
+  .section.order-main{
+    padding: 8px 0 24px;
+  }
+
+  .order-pane{
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* keep info panel full width if you like, or also narrow it:
+  .side-pane{
+    max-width: 360px;
+    margin: 16px auto 0;
+  }
+  */
+
+  .cards{
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 equal columns */
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .actions .btn {
+    width: 100%;
+    padding: 8px 6px;          /* smaller red area */
+    font-size: 12px;
+    text-align: center;
+  }
+  
+}
+
+
+    
+    .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip:focus{left:10px;top:10px;width:auto;height:auto;z-index:999;background:#fff;padding:10px 12px;border-radius:10px;border:1px solid var(--border)}
+
+    /* ====== ORDER–SPECIFIC STYLES (only additions) ====== */
+
+    /* Make hero single-column for order page */
+    .hero{
+      display:block;
+      padding:28px 0 10px;
+    }
+
+    /* Order layout */
+    .section.order-main{padding:24px 0 30px}
+    .grid-main{display:grid;grid-template-columns:1fr 360px;gap:20px}
+    @media (max-width:1080px){.grid-main{gap:16px}}
+    @media (max-width:900px){.grid-main{grid-template-columns:1fr}}
+
+    .order-pane,.side-pane{
+      background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+      padding:18px;box-shadow:var(--shadow)
+    }
+    .side-pane{position:sticky;top:96px;height:fit-content}
+    @media (max-width:900px){
+      .order-pane,.side-pane{border-radius:16px}
+      .side-pane{position:static}
+    }
+
+    /* Table */
+    .table-wrap{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+    table.table{width:100%;border-collapse:collapse}
+    table.table th,table.table td{padding:12px 10px;border-bottom:1px solid #f1f1f1;text-align:left}
+    table.table th{background:#fff7f5;font-weight:900}
+    table.table tfoot td{font-weight:900}
+
+
+/* Make ITEM dropdown wider */
+table.table td:first-child select {
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 220px;
+}
+
+/* Make QTY controls smaller */
+.qty-wrap {
+  grid-template-columns: 32px 1fr 32px !important;
+  gap: 6px !important;
+}
+
+.qty-btn {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 16px;
+  border-radius: 8px !important;
+}
+
+/* Make the qty input smaller */
+.qty-wrap input {
+  height: 32px !important;
+  font-size: 14px;
+}
+
+/* Reduce spacing in the QTY column */
+table.table td:nth-child(3) {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+
+    .qty-wrap{display:inline-grid;grid-template-columns:40px minmax(80px,1fr) 40px;gap:8px}
+    .qty-btn{
+      border:1px solid var(--border);background:#fff;border-radius:10px;
+      width:40px;height:40px;display:grid;place-items:center;font-weight:900;cursor:pointer
+    }
+    .qty-wrap input{height:40px;text-align:center}
+
+    :where(input[type="text"],input[type="email"],input[type="tel"],input[type="number"],textarea,select){
+      width:100%;background:#fff;color:var(--ink);
+      border:1.5px solid #e6dcdc;border-radius:12px;outline:none;
+      padding:12px 14px;font-size:16px;transition:.15s border-color,.15s box-shadow;
+      -webkit-tap-highlight-color: transparent;
+    }
+    select{height:46px}
+    input[type="number"]{text-align:right}
+    input[type="number"][readonly]{background:#fbf7f8;color:#6a6a6a}
+    :where(input[type="text"],input[type="email"],input[type="tel"],input[type="number"],textarea,select):focus{
+      border-color:#9a1a12;box-shadow:0 0 0 4px rgba(154,26,18,.16)
+    }
+
+    input[type="number"]{appearance:textfield;-moz-appearance:textfield}
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+    .fl{position:relative;margin:8px 0}
+    .fl input,.fl textarea{padding-top:16px}
+    .fl label{
+      position:absolute;left:14px;top:50%;transform:translateY(-50%);
+      background:transparent;color:#828282;padding:0 6px;pointer-events:none;transition:.15s;font-size:.98rem
+    }
+    .fl input::placeholder,.fl textarea::placeholder{color:transparent}
+    .fl input:focus + label,.fl input:not(:placeholder-shown) + label,
+    .fl textarea:focus + label,.fl textarea:not(:placeholder-shown) + label{
+      top:-8px;transform:none;font-size:.78rem;font-weight:900;color:var(--brand);background:#fff
+    }
+
+    .notice{
+      display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px dashed #ead7d3;
+      border-radius:12px;padding:12px 14px;margin:4px 0 10px;color:#7b4d48
+    }
+
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .btn.primary{background:var(--brand);color:#fff;border:1px solid var(--brand)}
+    .order-count{
+      background:var(--brand);color:#fff;border-radius:999px;
+      padding:2px 8px;font-size:.8rem;font-weight:800;margin-left:6px;
+    }
+
+    .tip{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+    .tip h3{margin:0 0 8px;font-size:18px;display:flex;gap:8px;align-items:center}
+    .slots-list{margin:8px 0 0 0;padding-left:18px}
+
+/* Mobile layout for each order row – big, clear, stacked */
+/* Mobile layout for each order row – big, clear, stacked */
+@media (max-width:640px){
+
+  .table-wrap{
+    overflow: visible;
+    box-shadow: none;
+    border-radius: 0;
+    border: 0;
+    width: 100%;
+  }
+
+  table.table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;   /* space between cards */
+  }  
+
+  /* Hide desktop header row */
+  table.table thead{
+    display: none;
+  }
+
+  /* Each order row becomes a vertical card */
+  table.table tbody tr{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    margin: 0 0 10px 0;
+    width: 100%;
+  }
+
+  /* Each cell: label + field stacked */
+  table.table tbody td{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+  }
+
+  /* Show the column name as a label above the input */
+  table.table tbody td::before{
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 13px;
+    color: #4b5563;
+  }
+
+  /* Action (red X) aligned to the right */
+  table.table tbody td:last-child{
+    align-self: flex-end;
+  }
+
+  /* Inputs bigger & easier to tap */
+  table.table select,
+  table.table input{
+    height: 44px;
+    border-radius: 12px;
+    font-size: 15px;
+  }
+
+  /* Quantity stepper nicely sized */
+  .qty-wrap{
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    gap: 8px;
+  }
+
+  .qty-btn{
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  tfoot tr td{
+    padding: 8px 10px;
+    font-size: 15px; 
+  }
+}
+
+  </style>
+</head>
+
+<body>
+  <a href="#main" class="skip">Skip to content</a>
+  <div class="page-bg"></div>
+
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <img src="assets/img/logo.png" alt="The Weekend Bite logo" class="logo" />
+        <div class="name"><b>The Weekend Bite</b><span>Torino • Fresh &amp; Halal</span></div>
+      </div>
+
+      <nav class="navlinks" aria-label="Main navigation">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a class="active" href="order.html" data-i18n="nav.order">
+          Order
+          <span id="order-count" class="order-count" style="display:none"></span>
+        </a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+        <a href="faq.html" data-i18n="nav.faq">FAQ</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+      </nav>
+
+      <div class="lang">
+        <button id="btn-en" class="active" aria-label="English">EN</button>
+        <button id="btn-it" aria-label="Italiano">IT</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Hero (order version, but using same panel style) ===== -->
+  <main id="main" class="container">
+    <section class="hero">
+      <div class="panel">
+        <div class="kicker">Delivery Every Week • Torino</div>
+        <h1><i class="fas fa-shopping-basket"></i> <span data-i18n="order.grid.title">Order</span></h1>
+        <p class="tagline" data-i18n="order.grid.desc">Add items (kg) and submit. We’ll receive it in our system.</p>
+        <div class="chips" aria-label="Service highlights">
+          <span class="chip"><i class="fas fa-truck" aria-hidden="true"></i> Delivery: Wed 18–20 • Sat 10–12</span>
+          <span class="chip"><i class="fas fa-weight-hanging" aria-hidden="true"></i> 0.5 kg steps</span>
+          <span class="chip"><i class="fas fa-lock" aria-hidden="true"></i> Secure submit</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Order grid ===== -->
+    <section class="section order-main">
+      <div class="grid-main">
+        <!-- LEFT -->
+        <section class="order-pane">
+          <div class="notice" role="note">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            <span data-i18n="order.minimumOrder">Minimum order: <b>1 kg total</b>. You can split across flavors in <b>0.5 kg</b> (e.g., 0.5 + 0.5).</span>
+          </div>
+
+          <div class="table-wrap" style="margin:14px 0">
+            <table class="table" aria-describedby="order-help">
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="order.item">Item</th>
+                  <th scope="col" data-i18n="order.price">Price €/kg</th>
+                  <th scope="col" data-i18n="order.qty">Qty (kg)</th>
+                  <th scope="col" data-i18n="order.notes">Notes</th>
+                  <th scope="col" data-i18n="order.total">Price €</th>
+                  <th scope="col" aria-label="Row actions"></th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" style="text-align:right"><strong>Items Total €</strong></td>
+                  <td><strong id="grand">0.00</strong></td><td></td>
+                </tr>
+                <tr id="row-delivery-fee" style="display:none">
+                  <td colspan="4" style="text-align:right"><strong>Delivery Fee €</strong></td>
+                  <td><strong id="delivery-fee">0.00</strong></td><td></td>
+                </tr>
+                <tr>
+                  <td colspan="4" style="text-align:right"><strong>Payable Total €</strong></td>
+                  <td><strong id="payable">0.00</strong></td><td></td>
+                </tr>
+              </tfoot>
+            </table>
+            <small id="order-help" class="muted" style="display:block;padding:8px 10px">Adjust quantities in 0.5 kg steps.</small>
+          </div>
+
+          <div class="actions" role="group" aria-label="Table actions">
+            <button id="add" class="btn primary"><i class="fas fa-plus"></i> <span data-i18n="order.add">Add row</span></button>
+            <button id="clear" class="btn"><i class="fas fa-trash"></i> <span data-i18n="order.clear">Clear</span></button>
+            <button id="csv" class="btn"><i class="fas fa-file-export"></i> <span data-i18n="order.export">Export CSV</span></button>
+          </div>
+
+          <!-- Fulfillment -->
+          <h2 style="margin:18px 0 8px;font-size:20px">Delivery or Pickup</h2>
+          <div class="grid-3" style="align-items:start">
+            <div class="card" style="padding:14px">
+              <div class="stack" role="radiogroup" aria-label="Fulfillment mode">
+                <label style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+                  <input type="radio" name="fulfillment" id="fulfillment-pickup" value="pickup" checked>
+                  <span><b>Pickup</b> (no fee). Pickup address: Corso Unione Sovietica, 561, 10135 Torino TO</span>
+                </label>
+                <label style="display:flex;gap:10px;align-items:center">
+                  <input type="radio" name="fulfillment" id="fulfillment-delivery" value="delivery">
+                  <span><b>Delivery</b> (+ €2)</span>
+                </label>
+                <!-- hidden checkbox preserved for totals compatibility -->
+                <input type="checkbox" id="include-delivery" style="display:none" />
+              </div>
+            </div>
+
+            <div class="card" id="delivery-controls" style="display:none;padding:14px">
+              <label for="delivery-slot" style="font-weight:900;margin-bottom:6px;display:block">Delivery slot</label>
+              <select id="delivery-slot" aria-label="Choose delivery slot"></select>
+              <small class="muted" style="display:block;margin-top:6px">Only Wednesday 18:00–20:00 and Saturday 10:00–12:00. No same-day delivery.</small>
+            </div>
+
+            <div class="card" style="padding:14px">
+              <div class="fl">
+                <input id="c-name" type="text" inputmode="text" autocomplete="name" required placeholder=" ">
+                <label for="c-name">Full Name</label>
+              </div>
+              <div class="fl">
+                <input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder=" ">
+                <label for="c-phone">Phone</label>
+              </div>
+              <div class="fl">
+                <input id="c-addr" type="text" inputmode="text" autocomplete="street-address" required placeholder=" ">
+                <label for="c-addr">Address</label>
+              </div>
+              <div class="fl">
+                <input id="c-email" type="email" inputmode="email" required autocomplete="email" placeholder=" ">
+                <label for="c-email">Email</label>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="margin-top:16px;font-size:18px">Notes & Allergies</h3>
+          <div class="card" style="margin-top:10px;padding:14px">
+            <div class="fl">
+              <textarea id="c-notes" placeholder=" " rows="3"></textarea>
+              <label for="c-notes">Notes (optional)</label>
+            </div>
+            <div class="fl">
+              <input id="c-allergies" type="text" placeholder=" ">
+              <label for="c-allergies">Allergies (optional)</label>
+            </div>
+            <input id="hp-field" name="website" type="text" style="display:none" autocomplete="off">
+          </div>
+
+          <div class="actions" style="margin-top:14px">
+            <button id="place-order" class="btn primary"><i class="fas fa-paper-plane"></i> <span data-i18n="order.sendwa">Place Order</span></button>
+          </div>
+        </section>
+
+        <!-- RIGHT -->
+        <aside class="side-pane" aria-label="Helpful info">
+          <div class="tip">
+            <h3><i class="fas fa-truck"></i> Delivery & Pickup</h3>
+            <p>Delivery in Torino (+€2). Pickup is free.</p>
+            <ul id="next-slots" class="slots-list"></ul>
+          </div>
+          <div class="tip">
+            <h3><i class="fas fa-utensils"></i> Portion tips</h3>
+            <p>0.5 kg ≈ 2 portions • 1 kg ≈ 4 portions.</p>
+          </div>
+          <div class="tip">
+            <h3><i class="fas fa-snowflake"></i> Storage</h3>
+            <p>Keep chilled ≤ 4°C and consume within 3 days, or freeze on delivery day.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="muted">© 2025 The Weekend Bite. <span>All rights reserved.</span></div>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js?v=9"></script>
+  <script src="assets/js/i18n.dict.js?v=1"></script>
+  <script src="assets/js/i18n.js?v=9"></script>
+  <script src="assets/js/site.js?v=9"></script>
+  <script src="assets/js/backend.js?v=13"></script>
+  <script src="assets/js/order.js?v=18"></script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".navlinks a").forEach(link => {
+    let linkPath = link.getAttribute("href")
+      .replace(".html", "")      // remove .html
+      .replace("index", "");     // home page
+
+    let currentPath = window.location.pathname.replace(/\/$/, "");
+
+    if (currentPath === "" && linkPath === "") {
+      link.classList.add("active");
+    } else if (currentPath.includes(linkPath) && linkPath !== "") {
+      link.classList.add("active");
+    }
+  });
+});
+</script>
+
+</body>
+</html>
