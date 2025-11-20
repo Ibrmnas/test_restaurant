@@ -120,7 +120,7 @@ function nextDeliverySlots(count = 3) {
         out.push(nextSaturday);
     }
     // Check if it's Friday after 12:00 PM, show next Wednesday's slot
-    else if (dayOfWeek === 5 && hour >= 12) { // Friday after 12:00 PM
+    else if (dayOfWeek === 4 && hour >= 21) { // Friday after 12:00 PM
         const nextWednesday = getNextDeliverySlot("Wed");
         out.push(nextWednesday);
     }
