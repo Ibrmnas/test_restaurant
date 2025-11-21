@@ -117,7 +117,7 @@ function nextDeliverySlots(count = 3) {
   const minute = now.getMinutes();
 
   // Block after 12:00 PM
-  const after12 = (hour > 12) || (hour === 12 && minute >= 0);
+  const after12 = (hour > 10) || (hour === 10 && minute >= 0);
 
   // Which slots to block THIS week
   let blockWed = false;
@@ -177,7 +177,7 @@ function getNextDeliverySlot(day) {
   const minute = now.getMinutes();
 
   // Block after 12:00 PM
-  const after12 = (hour > 12) || (hour === 12 && minute >= 0);
+  const after12 = (hour > 10) || (hour === 10 && minute >= 0);
 
   const targetDay = day === "Wed" ? 3 : 6;  // 3 = Wednesday, 6 = Saturday
   const blockCondition =
