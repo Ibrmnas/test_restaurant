@@ -106,6 +106,9 @@
     return `${d}, ${t}`;
   }
   
+/* =========================================================
+   NEXT THREE DELIVERY SLOTS (with Tuesday/Fri 12:00 block)
+   ========================================================= */
 function nextDeliverySlots(count = 3) {
   const out = [];
   const now = new Date();
@@ -113,40 +116,37 @@ function nextDeliverySlots(count = 3) {
   const hour = now.getHours();
   const minute = now.getMinutes();
 
-  // Helper: check if current time >= 12:30
-  const after1230 = (hour > 12) || (hour === 12 && minute >= 00);
+  // Block after 12:00 PM
+  const after12 = (hour > 12) || (hour === 12 && minute >= 0);
 
-  // --- determine which upcoming delivery days are blocked ---
+  // Which slots to block THIS week
   let blockWed = false;
   let blockSat = false;
 
-  // If it's Tuesday after 12:30 → block THIS week's Wednesday
-  if (today === 2 && after1230) blockWed = true;
+  // Tuesday after 12:00 → block THIS Wednesday
+  if (today === 2 && after12) blockWed = true;
 
-  // If it's Friday after 12:30 → block THIS week's Saturday
-  if (today === 5 && after1230) blockSat = true;
+  // Friday after 12:00 → block THIS Saturday
+  if (today === 5 && after12) blockSat = true;
 
   for (let add = 0; out.length < count && add < 30; add++) {
     const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add);
     const dow = date.getDay();
 
-    // same day block
-    const sameDay = date.toDateString() === now.toDateString();
-    if (sameDay) continue;
+    // Skip same-day delivery
+    if (date.toDateString() === now.toDateString()) continue;
 
     let startH = null, endH = null;
 
     // Wednesday slot
     if (dow === 3) {
-      // skip THIS Wednesday if blocked
-      if (blockWed && add < 7) continue;
+      if (blockWed && add < 7) continue; // Block THIS week’s Wednesday
       startH = 18; endH = 20;
     }
 
     // Saturday slot
     if (dow === 6) {
-      // skip THIS Saturday if blocked
-      if (blockSat && add < 7) continue;
+      if (blockSat && add < 7) continue; // Block THIS week’s Saturday
       startH = 10; endH = 12;
     }
 
@@ -166,43 +166,47 @@ function nextDeliverySlots(count = 3) {
   return out.slice(0, count);
 }
 
+
+/* =========================================================
+   NEXT SINGLE DELIVERY SLOT (used by backend / confirmations)
+   ========================================================= */
 function getNextDeliverySlot(day) {
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const after1230 = (hour > 12) || (hour === 12 && minute >= 00);
+  const now = new Date();
+  const today = now.getDay();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
 
-    const targetDay = day === "Wed" ? 3 : 6; // 3 = Wed, 6 = Sat
-    let addDays = targetDay - now.getDay();
+  // Block after 12:00 PM
+  const after12 = (hour > 12) || (hour === 12 && minute >= 0);
 
-    // Block Tuesday after 12:30 → skip THIS Wednesday
-    if (day === "Wed" && now.getDay() === 2 && after1230) {
-        addDays += 7;
-    }
+  const targetDay = day === "Wed" ? 3 : 6;  // 3 = Wednesday, 6 = Saturday
+  const blockCondition =
+      (day === "Wed" && today === 2 && after12) ||   // Tuesday after 12:00 → block Wed
+      (day === "Sat" && today === 5 && after12);      // Friday after 12:00 → block Sat
 
-    // Block Friday after 12:30 → skip THIS Saturday
-    if (day === "Sat" && now.getDay() === 5 && after1230) {
-        addDays += 7;
-    }
+  let addDays = targetDay - today;
 
-    if (addDays <= 0) {
-        addDays += 7; 
-    }
+  // If today already passed the target or we must block this week → skip to next week
+  if (addDays <= 0 || blockCondition) {
+    addDays += 7;
+  }
 
-    const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + addDays);
-    const startH = day === "Wed" ? 18 : 10;
-    const endH = day === "Wed" ? 20 : 12;
+  const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + addDays);
 
-    const start = new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), startH, 0, 0);
-    const end   = new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), endH, 0, 0);
+  const startH = day === "Wed" ? 18 : 10;
+  const endH   = day === "Wed" ? 20 : 12;
 
-    return {
-        date: `${nextDate.getFullYear()}-${pad2(nextDate.getMonth()+1)}-${pad2(nextDate.getDate())}`,
-        startISO: start.toISOString(),
-        endISO: end.toISOString(),
-        label: fmtSlotLabel(nextDate, start, end)
-    };
+  const start = new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), startH, 0, 0);
+  const end   = new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), endH, 0, 0);
+
+  return {
+    date: `${nextDate.getFullYear()}-${pad2(nextDate.getMonth()+1)}-${pad2(nextDate.getDate())}`,
+    startISO: start.toISOString(),
+    endISO: end.toISOString(),
+    label: fmtSlotLabel(nextDate, start, end)
+  };
 }
+
 
   
   function populateDeliveryUI() {
