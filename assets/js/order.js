@@ -160,8 +160,28 @@ function nextDeliverySlots(count = 3) {
   return out.slice(0, count);
 }
 
+function getNextDeliverySlot(day) {
+    const now = new Date();
+    const targetDay = day === "Wed" ? 3 : 6; // 3 = Wednesday, 6 = Saturday
+    let addDays = targetDay - now.getDay();
+    if (addDays <= 0) {
+        addDays += 7; // Ensure that we get the next instance of the target day
+    }
 
+    const nextSlotDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + addDays);
+    const startH = day === "Wed" ? 18 : 10; // 18:00 for Wednesday, 10:00 for Saturday
+    const endH = day === "Wed" ? 20 : 12;   // 20:00 for Wednesday, 12:00 for Saturday
 
+    const start = new Date(nextSlotDate.getFullYear(), nextSlotDate.getMonth(), nextSlotDate.getDate(), startH, 0, 0);
+    const end = new Date(nextSlotDate.getFullYear(), nextSlotDate.getMonth(), nextSlotDate.getDate(), endH, 0, 0);
+
+    return {
+        date: `${nextSlotDate.getFullYear()}-${pad2(nextSlotDate.getMonth() + 1)}-${pad2(nextSlotDate.getDate())}`,
+        startISO: start.toISOString(),
+        endISO: end.toISOString(),
+        label: fmtSlotLabel(nextSlotDate, start, end)
+    };
+}
   
   function populateDeliveryUI() {
     const slots = nextDeliverySlots(DELIVERY_SLOTS_COUNT);
