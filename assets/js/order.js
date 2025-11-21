@@ -120,7 +120,7 @@ function nextDeliverySlots(count = 3) {
   if (today === 2 && hour >= 12) blockWed = true;
 
   // If it's Friday after 12:00 → block THIS week's Saturday
-  if (today === 5 && hour >= 12) blockSat = true;
+  if (today === 5 && hour >= 9) blockSat = true;
 
   for (let add = 0; out.length < count && add < 30; add++) {
     const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add);
