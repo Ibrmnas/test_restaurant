@@ -114,7 +114,7 @@ function nextDeliverySlots(count = 3) {
   const minute = now.getMinutes();
 
   // Helper: check if current time >= 12:30
-  const after1230 = (hour > 8) || (hour === 8 && minute >= 40);
+  const after1230 = (hour > 8) || (hour === 8 && minute >= 45);
 
   // --- determine which upcoming delivery days are blocked ---
   let blockWed = false;
@@ -170,7 +170,7 @@ function getNextDeliverySlot(day) {
     const now = new Date();
     const hour = now.getHours();
     const minute = now.getMinutes();
-    const after1230 = (hour > 8) || (hour === 8 && minute >= 40);
+    const after1230 = (hour > 8) || (hour === 8 && minute >= 45);
 
     const targetDay = day === "Wed" ? 3 : 6; // 3 = Wed, 6 = Sat
     let addDays = targetDay - now.getDay();
