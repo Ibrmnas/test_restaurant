@@ -111,22 +111,26 @@ function nextDeliverySlots(count = 3) {
   const now = new Date();
   const today = now.getDay();  // 0=Sun ... 2=Tue ... 5=Fri ... 6=Sat
   const hour = now.getHours();
+  const minute = now.getMinutes();
+
+  // Helper: check if current time >= 12:30
+  const after1230 = (hour > 8) || (hour === 8 && minute >= 40);
 
   // --- determine which upcoming delivery days are blocked ---
   let blockWed = false;
   let blockSat = false;
 
-  // If it's Tuesday after 12:00 → block THIS week's Wednesday
-  if (today === 2 && hour >= 12) blockWed = true;
+  // If it's Tuesday after 12:30 → block THIS week's Wednesday
+  if (today === 2 && after1230) blockWed = true;
 
-  // If it's Friday after 12:00 → block THIS week's Saturday
-  if (today === 5 && hour >= 9) blockSat = true;
+  // If it's Friday after 12:30 → block THIS week's Saturday
+  if (today === 5 && after1230) blockSat = true;
 
   for (let add = 0; out.length < count && add < 30; add++) {
     const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add);
     const dow = date.getDay();
 
-    // same day block (existing rule)
+    // same day block
     const sameDay = date.toDateString() === now.toDateString();
     if (sameDay) continue;
 
@@ -134,13 +138,15 @@ function nextDeliverySlots(count = 3) {
 
     // Wednesday slot
     if (dow === 3) {
-      if (blockWed && add < 7) continue;   // skip THIS Wednesday
+      // skip THIS Wednesday if blocked
+      if (blockWed && add < 7) continue;
       startH = 18; endH = 20;
     }
 
     // Saturday slot
     if (dow === 6) {
-      if (blockSat && add < 7) continue;   // skip THIS Saturday
+      // skip THIS Saturday if blocked
+      if (blockSat && add < 7) continue;
       startH = 10; endH = 12;
     }
 
@@ -162,26 +168,42 @@ function nextDeliverySlots(count = 3) {
 
 function getNextDeliverySlot(day) {
     const now = new Date();
-    const targetDay = day === "Wed" ? 3 : 6; // 3 = Wednesday, 6 = Saturday
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const after1230 = (hour > 8) || (hour === 8 && minute >= 40);
+
+    const targetDay = day === "Wed" ? 3 : 6; // 3 = Wed, 6 = Sat
     let addDays = targetDay - now.getDay();
-    if (addDays <= 0) {
-        addDays += 7; // Ensure that we get the next instance of the target day
+
+    // Block Tuesday after 12:30 → skip THIS Wednesday
+    if (day === "Wed" && now.getDay() === 2 && after1230) {
+        addDays += 7;
     }
 
-    const nextSlotDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + addDays);
-    const startH = day === "Wed" ? 18 : 10; // 18:00 for Wednesday, 10:00 for Saturday
-    const endH = day === "Wed" ? 20 : 12;   // 20:00 for Wednesday, 12:00 for Saturday
+    // Block Friday after 12:30 → skip THIS Saturday
+    if (day === "Sat" && now.getDay() === 5 && after1230) {
+        addDays += 7;
+    }
 
-    const start = new Date(nextSlotDate.getFullYear(), nextSlotDate.getMonth(), nextSlotDate.getDate(), startH, 0, 0);
-    const end = new Date(nextSlotDate.getFullYear(), nextSlotDate.getMonth(), nextSlotDate.getDate(), endH, 0, 0);
+    if (addDays <= 0) {
+        addDays += 7; 
+    }
+
+    const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + addDays);
+    const startH = day === "Wed" ? 18 : 10;
+    const endH = day === "Wed" ? 20 : 12;
+
+    const start = new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), startH, 0, 0);
+    const end   = new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), endH, 0, 0);
 
     return {
-        date: `${nextSlotDate.getFullYear()}-${pad2(nextSlotDate.getMonth() + 1)}-${pad2(nextSlotDate.getDate())}`,
+        date: `${nextDate.getFullYear()}-${pad2(nextDate.getMonth()+1)}-${pad2(nextDate.getDate())}`,
         startISO: start.toISOString(),
         endISO: end.toISOString(),
-        label: fmtSlotLabel(nextSlotDate, start, end)
+        label: fmtSlotLabel(nextDate, start, end)
     };
 }
+
   
   function populateDeliveryUI() {
     const slots = nextDeliverySlots(DELIVERY_SLOTS_COUNT);
