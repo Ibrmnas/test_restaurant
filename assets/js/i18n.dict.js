@@ -56,6 +56,17 @@ window.I18N_DICT = {
     "order.includeDelivery": "Include delivery (€2)",
     "order.toPay": "To pay",
     "order.payEmailInfo": "After you place your order, you’ll receive an email with payment methods (Revolut / Satispay). Please pay using the link in that email. We’ll confirm your order once the payment is received."
+
+    "about.lead": "We’re a small family-run Lebanese kitchen in Torino, bringing the flavors we grew up with to your table.",
+    "about.p1": "We marinate fresh, halal chicken using Lebanese family recipes and deliver every week—so your grill or pan is always ready for an easy, flavorful meal.",
+    "about.p2": "Every batch is made in small quantities, with attention to quality, hygiene, and taste. You choose your flavors, we prepare everything, and your lunch/dinner is just a quick cook away.",
+    "about.p3": "Quality, simplicity, and friendly service. That’s our promise.",
+    "about.list1": "Made fresh weekly in Torino",
+    "about.list2": "Transparent pricing per kilogram",
+    "about.list3": "Clear storage information",
+    "about.list4": "Orders saved in our secure system and confirmed by email",
+
+    
   },
 
   "it": {
@@ -114,5 +125,15 @@ window.I18N_DICT = {
     "order.includeDelivery": "Includi consegna (€2)",
     "order.toPay": "Da pagare",
     "order.payEmailInfo": "Dopo aver inviato l’ordine, riceverai un’email con i metodi di pagamento (Revolut / Satispay). Effettua il pagamento dal link nell’email. Confermeremo l’ordine quando riceveremo il pagamento."
-  }
+    
+    "about.lead": "Siamo una piccola cucina libanese a conduzione familiare a Torino, portiamo sulla tua tavola i sapori con cui siamo cresciuti.",
+    "about.p1": "Mariniamo pollo fresco e halal secondo ricette di famiglia libanesi e consegniamo ogni settimana—così la tua griglia o padella è sempre pronta per un pasto gustoso e veloce.",
+    "about.p2": "Ogni preparazione è fatta in piccole quantità, con attenzione alla qualità, all’igiene e al sapore. Tu scegli i gusti, noi prepariamo tutto, e il tuo pranzo/cena sarà pronto in pochi minuti.",
+    "about.p3": "Qualità, semplicità e un servizio cordiale. Questa è la nostra promessa.",
+    "about.list1": "Preparato fresco ogni settimana a Torino",
+    "about.list2": "Prezzi trasparenti al chilo",
+    "about.list3": "Informazioni chiare sulla conservazione",
+    "about.list4": "Ordini salvati nel nostro sistema sicuro e confermati via email",
+ 
+}
 };
