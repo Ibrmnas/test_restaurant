@@ -175,7 +175,7 @@
     // Safety check: if config.js hasn't loaded yet, wait 50ms
     function checkVacation() {
       if (window.SITE_STATUS?.vacation) {
-        if (!window.location.pathname.includes("vacation.html")) {
+        if (!window.location.pathname.includes("Vacation.html")) {
           window.location.href = window.SITE_STATUS.vacationPage;
         }
       }
