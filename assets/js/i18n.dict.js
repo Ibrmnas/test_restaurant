@@ -14,12 +14,6 @@ window.I18N_DICT = {
     "hero.chip.fajita": "Lebanese Fajita",
     "hero.chip.francisco": "Francisco",
 
-    "home.why.title": "Why choose us?",
-    "home.why.1": "Family Lebanese recipes",
-    "home.why.2": "Fresh & halal chicken",
-    "home.why.3": "Delivered in Torino every weekend",
-    "home.menu.title": "Our Bestsellers",
-
     "menu.title": "Menu & Prices",
     "menu.add": "Add to Order",
 
@@ -42,16 +36,6 @@ window.I18N_DICT = {
 
     "faq.title": "FAQ",
     "about.title": "Our Story",
-    "about.lead": "We’re a small family-run Lebanese kitchen in Torino, bringing the flavors we grew up with to your table.",
-    "about.p1": "We marinate fresh, halal chicken using Lebanese family recipes and deliver every week—so your grill or pan is always ready for an easy, flavorful meal.",
-    "about.p2": "Every batch is made in small quantities, with attention to quality, hygiene, and taste. You choose your flavors, we prepare everything, and your lunch/dinner is just a quick cook away.",
-    "about.p3": "Quality, simplicity, and friendly service. That’s our promise.",
-    "about.list1": "Made fresh weekly in Torino",
-    "about.list2": "Transparent pricing per kilogram",
-    "about.list3": "Clear storage information",
-    "about.list4": "Orders saved in our secure system and confirmed by email",
-
-    "footer.safety": "Please follow local food safety rules. Labels include ingredients & allergens.",
 
     "form.name": "Full name",
     "form.phone": "Phone number",
@@ -63,8 +47,16 @@ window.I18N_DICT = {
     "pay.satispay": "Pay with Satispay",
     "order.includeDelivery": "Include delivery (€2)",
     "order.toPay": "To pay",
-    "order.payEmailInfo": "After you place your order, you’ll receive an email with payment methods (Revolut / Satispay). Please pay using the link in that email. We’ll confirm your order once the payment is received."
-    
+    "order.payEmailInfo": "After you place your order, you’ll receive an email with payment methods (Revolut / Satispay).",
+
+    "about.lead": "We’re a small family-run Lebanese kitchen in Torino, bringing the flavors we grew up with to your table.",
+    "about.p1": "We marinate fresh, halal chicken using Lebanese family recipes and deliver every week—so your grill or pan is always ready for an easy, flavorful meal.",
+    "about.p2": "Every batch is made in small quantities, with attention to quality, hygiene, and taste. You choose your flavors, we prepare everything, and your lunch/dinner is just a quick cook away.",
+    "about.p3": "Quality, simplicity, and friendly service. That’s our promise.",
+    "about.list1": "Made fresh weekly in Torino",
+    "about.list2": "Transparent pricing per kilogram",
+    "about.list3": "Clear storage information",
+    "about.list4": "Orders saved in our secure system and confirmed by email"
   },
 
   "it": {
@@ -82,18 +74,12 @@ window.I18N_DICT = {
     "hero.chip.fajita": "Fajita Libanese",
     "hero.chip.francisco": "Francisco",
 
-    "home.why.title": "Perché sceglierci?",
-    "home.why.1": "Ricette libanesi di famiglia",
-    "home.why.2": "Pollo fresco e halal",
-    "home.why.3": "Consegna a Torino ogni weekend",
-    "home.menu.title": "I più richiesti",
-
     "menu.title": "Menu & Prezzi",
     "menu.add": "Aggiungi all’ordine",
 
     "order.grid.title": "Ordine",
     "order.grid.desc": "Aggiungi prodotti (kg) e invia. Riceveremo l’ordine nel nostro sistema.",
-    "order.minimumOrder": "Ordine minimo: 1 kg totale. Puoi dividere tra i gusti in 0.5 kg (ad esempio, 0.5 + 0.5).",
+    "order.minimumOrder": "Ordine minimo: 1 kg totale. Puoi dividere tra i gusti in 0.5 kg.",
     "order.item": "Prodotto",
     "order.price": "Prezzo €/kg",
     "order.qty": "Q.tà (kg)",
@@ -111,27 +97,27 @@ window.I18N_DICT = {
     "faq.title": "FAQ",
     "about.title": "La nostra storia",
 
-    "footer.safety": "Si prega di seguire le normative locali sulla sicurezza alimentare. Le etichette includono ingredienti e allergeni.",
+    "footer.safety": "Seguire le normative locali sulla sicurezza alimentare. Le etichette includono ingredienti e allergeni.",
+
     "form.name": "Nome completo",
     "form.phone": "Numero di telefono",
     "form.address": "Indirizzo di consegna (Torino)",
-    "form.order": "Il tuo ordine (ad esempio, Tawook 1 kg, Shawarma 1 kg)",
+    "form.order": "Il tuo ordine (es. Tawook 1 kg, Shawarma 1 kg)",
     "form.submit": "Invia",
 
     "pay.revolut": "Paga con Revolut",
     "pay.satispay": "Paga con Satispay",
     "order.includeDelivery": "Includi consegna (€2)",
     "order.toPay": "Da pagare",
-    "order.payEmailInfo": "Dopo aver inviato l’ordine, riceverai un’email con i metodi di pagamento (Revolut / Satispay). Effettua il pagamento dal link nell’email. Confermeremo l’ordine quando riceveremo il pagamento."
-    
+    "order.payEmailInfo": "Dopo aver inviato l’ordine, riceverai un’email con i metodi di pagamento.",
+
     "about.lead": "Siamo una piccola cucina libanese a conduzione familiare a Torino, portiamo sulla tua tavola i sapori con cui siamo cresciuti.",
-    "about.p1": "Mariniamo pollo fresco e halal secondo ricette di famiglia libanesi e consegniamo ogni settimana—così la tua griglia o padella è sempre pronta per un pasto gustoso e veloce.",
-    "about.p2": "Ogni preparazione è fatta in piccole quantità, con attenzione alla qualità, all’igiene e al sapore. Tu scegli i gusti, noi prepariamo tutto, e il tuo pranzo/cena sarà pronto in pochi minuti.",
+    "about.p1": "Mariniamo pollo fresco e halal secondo ricette di famiglia libanesi e consegniamo ogni settimana.",
+    "about.p2": "Ogni preparazione è fatta in piccole quantità, con attenzione alla qualità, all’igiene e al sapore.",
     "about.p3": "Qualità, semplicità e un servizio cordiale. Questa è la nostra promessa.",
     "about.list1": "Preparato fresco ogni settimana a Torino",
     "about.list2": "Prezzi trasparenti al chilo",
     "about.list3": "Informazioni chiare sulla conservazione",
-    "about.list4": "Ordini salvati nel nostro sistema sicuro e confermati via email",
- 
-}
+    "about.list4": "Ordini salvati nel nostro sistema sicuro e confermati via email"
+  }
 };
