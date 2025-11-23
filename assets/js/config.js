@@ -49,7 +49,7 @@ window.SITE_CONFIG = {
 };
 
 window.SITE_STATUS = {
-  vacation: false, // change to true to enable vacation mode
+  vacation: true, // change to true to enable vacation mode
   vacationPage: "vacation.html"
 };
 
