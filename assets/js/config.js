@@ -48,6 +48,11 @@ window.SITE_CONFIG = {
   ]
 };
 
+window.SITE_STATUS = {
+  vacation: false, // change to true to enable vacation mode
+  vacationPage: "vacation.html"
+};
+
 /* ---------------------------
    Payment config (Revolut/Satispay)
    Used by the payment buttons on Order page
