@@ -42,6 +42,14 @@ window.I18N_DICT = {
 
     "faq.title": "FAQ",
     "about.title": "Our Story",
+    "about.lead": "We’re a small family-run Lebanese kitchen in Torino, bringing the flavors we grew up with to your table.",
+    "about.p1": "We marinate fresh, halal chicken using Lebanese family recipes and deliver every week—so your grill or pan is always ready for an easy, flavorful meal.",
+    "about.p2": "Every batch is made in small quantities, with attention to quality, hygiene, and taste. You choose your flavors, we prepare everything, and your lunch/dinner is just a quick cook away.",
+    "about.p3": "Quality, simplicity, and friendly service. That’s our promise.",
+    "about.list1": "Made fresh weekly in Torino",
+    "about.list2": "Transparent pricing per kilogram",
+    "about.list3": "Clear storage information",
+    "about.list4": "Orders saved in our secure system and confirmed by email",
 
     "footer.safety": "Please follow local food safety rules. Labels include ingredients & allergens.",
 
@@ -56,16 +64,6 @@ window.I18N_DICT = {
     "order.includeDelivery": "Include delivery (€2)",
     "order.toPay": "To pay",
     "order.payEmailInfo": "After you place your order, you’ll receive an email with payment methods (Revolut / Satispay). Please pay using the link in that email. We’ll confirm your order once the payment is received."
-
-    "about.lead": "We’re a small family-run Lebanese kitchen in Torino, bringing the flavors we grew up with to your table.",
-    "about.p1": "We marinate fresh, halal chicken using Lebanese family recipes and deliver every week—so your grill or pan is always ready for an easy, flavorful meal.",
-    "about.p2": "Every batch is made in small quantities, with attention to quality, hygiene, and taste. You choose your flavors, we prepare everything, and your lunch/dinner is just a quick cook away.",
-    "about.p3": "Quality, simplicity, and friendly service. That’s our promise.",
-    "about.list1": "Made fresh weekly in Torino",
-    "about.list2": "Transparent pricing per kilogram",
-    "about.list3": "Clear storage information",
-    "about.list4": "Orders saved in our secure system and confirmed by email",
-
     
   },
 
