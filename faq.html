@@ -171,110 +171,118 @@
     </div>
   </header>
   
-  <main id="main" class="container">
-    <section class="section">
-      <h1 data-i18n="faq.title">FAQ</h1>
-      <p class="lead">Some quick answers about delivery, halal, storage and payment.</p>
+ <main id="main" class="container">
+  <section class="section">
 
-      <div class="stack" style="margin-top:14px">
-        <div class="card">
-          <strong>Do you deliver outside Torino?</strong>
-          <p class="muted">For now, delivery is in Torino only.</p>
-        </div>
+    <h1 data-i18n="faq.title">FAQ</h1>
+    <p class="lead" data-i18n="faq.lead">
+      Some quick answers about delivery, halal, storage and payment.
+    </p>
 
-        <div class="card">
-          <strong>Are the marinades halal?</strong>
-          <p class="muted">Yes — we use halal chicken.</p>
-        </div>
+    <div class="stack" style="margin-top:14px">
 
-        <div class="card" id="how-to-cook">
-          <strong>How should I store and cook?</strong>
-          <p class="muted">
-            Keep between 0–4&nbsp;°C and consume within 72 hours, or freeze immediately upon delivery.<br>
-            Always cook chicken thoroughly to at least 75&nbsp;°C, until the juices run clear.
-          </p>
-        </div>
+      <div class="card">
+        <strong data-i18n="faq.q1">Do you deliver outside Torino?</strong>
+        <p class="muted" data-i18n="faq.a1">For now, delivery is in Torino only.</p>
+      </div>
 
-        <div class="card">
-          <strong>Payment?</strong>
-          <p class="muted">You can pay by Revolut or Satispay (details are sent in your confirmation email).</p>
-        </div>
-    </section>
+      <div class="card">
+        <strong data-i18n="faq.q2">Are the marinades halal?</strong>
+        <p class="muted" data-i18n="faq.a2">Yes — we use halal chicken.</p>
+      </div>
 
-    <h2 style="margin-top:40px;">How to cook each marinade</h2>
+      <div class="card" id="how-to-cook">
+        <strong data-i18n="faq.q3">How should I store and cook?</strong>
+        <p class="muted" data-i18n="faq.a3">
+          Keep between 0–4 °C and consume within 72 hours, or freeze immediately upon delivery.<br>
+          Always cook chicken thoroughly to at least 75 °C, until the juices run clear.
+        </p>
+      </div>
 
-    <div class="accordion">
+      <div class="card">
+        <strong data-i18n="faq.q4">Payment?</strong>
+        <p class="muted" data-i18n="faq.a4">
+          You can pay by Revolut or Satispay (details are sent in your confirmation email).
+        </p>
+      </div>
 
-  <!-- Tawook -->
-  <div class="accordion-item">
-    <div class="accordion-header" onclick="toggleAccordion(this)">
-      <span>Red Shish Tawook</span>
-      <i class="fas fa-chevron-down"></i>
     </div>
-    <div class="accordion-content">
-      <p class="muted">
-        • Best cooked in a pan or on the grill<br>
-        • Medium-high heat<br>
-        • Cook until juice run out, stir occasionally<br>
-        • Can be eaten in a wrap or Lebanese bread with french fries, garlic, mayonnaise and ketchup sauces
-      </p>
+  </section>
+
+  <h2 style="margin-top:40px;" data-i18n="faq.cook.title">How to cook each marinade</h2>
+
+  <div class="accordion">
+
+    <!-- Tawook -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <span data-i18n="cook.tawook.title">Red Shish Tawook</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content">
+        <p class="muted" data-i18n="cook.tawook.text">
+          • Best cooked in a pan or on the grill<br>
+          • Medium-high heat<br>
+          • Cook until juices run out, stir occasionally<br>
+          • Can be eaten in a wrap or Lebanese bread with french fries, garlic, mayonnaise and ketchup sauces
+        </p>
+      </div>
     </div>
+
+    <!-- Fajita -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <span data-i18n="cook.fajita.title">Lebanese Fajita</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content">
+        <p class="muted" data-i18n="cook.fajita.text">
+          • Best cooked in a pan<br>
+          • Medium-high heat<br>
+          • Cook until juice run out, stir occasionally<br>
+          • You can add soy sauce while cooking<br>
+          • You can add mozzarella cheese at the end<br>
+          • Can be eaten in tortilla or submarine bun with avocado or mayonnaise
+        </p>
+      </div>
+    </div>
+
+    <!-- Shawarma -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <span data-i18n="cook.shawarma.title">Lebanese Shawarma</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content">
+        <p class="muted" data-i18n="cook.shawarma.text">
+          • Best cooked in a pan<br>
+          • Medium-high heat<br>
+          • Cook until juice run out, stir occasionally<br>
+          • Can be eaten in Lebanese bread or tortilla with garlic sauce or hummus
+        </p>
+      </div>
+    </div>
+
+    <!-- Francisco -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <span data-i18n="cook.francisco.title">Francisco</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content">
+        <p class="muted" data-i18n="cook.francisco.text">
+          • Best cooked in a pan<br>
+          • Medium-high heat<br>
+          • Cook until juice run out, stir occasionally<br>
+          • Add mozzarella at the end and let it melt<br>
+          • Can be eaten in tortilla or submarine bun with garlic or mayo sauces
+        </p>
+      </div>
+    </div>
+
   </div>
+</main>
 
-  <!-- Fajita -->
-  <div class="accordion-item">
-    <div class="accordion-header" onclick="toggleAccordion(this)">
-      <span>Lebanese Fajita</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
-    <div class="accordion-content">
-      <p class="muted">
-        • Best cooked in a pan<br>
-        • Medium-high heat<br>
-        • Cook until juice run out, stir occasionally<br>
-        • You can add soy sauce while cooking <br>
-        • You can add mozzarella cheese at the end of cooking and let it melt before serving<br>
-        • Can be eaten in a tortilla bread or submarine bun with avocado and mayonnaise sauces
-      </p>
-    </div>
-  </div>
-
-  <!-- Shawarma -->
-  <div class="accordion-item">
-    <div class="accordion-header" onclick="toggleAccordion(this)">
-      <span>Lebanese Shawarma</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
-    <div class="accordion-content">
-      <p class="muted">
-        • Best cooked in a pan<br>
-        • Medium-high heat<br>
-        • Cook until juice run out, stir occasionally<br>
-        • Can be eaten in a Lebanese bread or tortilla bread with garlic sauce or hummus dip
-      </p>
-    </div>
-  </div>
-
-  <!-- Francisco -->
-  <div class="accordion-item">
-    <div class="accordion-header" onclick="toggleAccordion(this)">
-      <span>Francisco</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
-    <div class="accordion-content">
-      <p class="muted">
-        • Best cooked in a pan<br>
-        • Medium-high heat<br>
-        • Cook until juice run out, stir occasionally<br>
-        • You can add mozzarella cheese at the end of cooking and let it melt before serving<br>
-        • Can be eaten in a tortilla bread or submarine bun with mayonnaise or garlic sauces
-      </p>
-    </div>
-  </div>
-
-</div>
-
-  </main>
 
 <script>
 function toggleAccordion(header) {
