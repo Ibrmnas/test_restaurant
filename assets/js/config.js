@@ -50,7 +50,7 @@ window.SITE_CONFIG = {
 
 window.SITE_STATUS = {
   vacation: true, // change to true to enable vacation mode
-  vacationPage: "vacation.html"
+  vacationPage: "Vacation.html"
 };
 
 /* ---------------------------
