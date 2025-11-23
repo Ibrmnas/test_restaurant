@@ -47,6 +47,16 @@ window.I18N_DICT = {
 
     "form.name": "Full name",
     "form.phone": "Phone number",
+    "form.name": "Full name",
+    "form.phone": "Phone number",
+    "form.email": "Email",
+    "form.message": "Message",
+    
+    "ph.name": "Your full name",
+    "ph.phone": "+39 …",
+    "ph.email": "you@example.com",
+    "ph.message": "Your message",
+    
     "form.address": "Delivery address (Torino)",
     "form.order": "Your order (e.g., Tawook 1 kg, Shawarma 1 kg)",
     "form.submit": "Send",
@@ -115,6 +125,16 @@ window.I18N_DICT = {
 
     "form.name": "Nome completo",
     "form.phone": "Numero di telefono",
+    "form.name": "Nome completo",
+    "form.phone": "Numero di telefono",
+    "form.email": "Email",
+    "form.message": "Messaggio",
+    
+    "ph.name": "Il tuo nome completo",
+    "ph.phone": "+39 …",
+    "ph.email": "tu@example.com",
+    "ph.message": "Il tuo messaggio",
+    
     "form.address": "Indirizzo di consegna (Torino)",
     "form.order": "Il tuo ordine (es. Tawook 1 kg, Shawarma 1 kg)",
     "form.submit": "Invia",
