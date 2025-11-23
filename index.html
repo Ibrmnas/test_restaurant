@@ -169,6 +169,27 @@
 
   </style>
 </head>
+
+<script>
+  (function () {
+    // Safety check: if config.js hasn't loaded yet, wait 50ms
+    function checkVacation() {
+      if (window.SITE_STATUS?.vacation) {
+        if (!window.location.pathname.includes("vacation.html")) {
+          window.location.href = window.SITE_STATUS.vacationPage;
+        }
+      }
+    }
+
+    // Run immediately + fallback delay
+    checkVacation();
+    setTimeout(checkVacation, 50);
+  })();
+</script>
+
+
+
+  
 <body>
   <a href="#main" class="skip">Skip to content</a>
   <div class="page-bg"></div>
