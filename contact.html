@@ -169,29 +169,27 @@
       <div class="card" style="margin-top:16px">
         <!-- Contact form -->
         <form class="form" id="contact-form" onsubmit="submitForm(event)">
-          <div class="form-group">
-            <label for="f-name" data-i18n="form.name">Full name</label>
-            <input id="f-name" required placeholder="Your full name" />
-          </div>
+          
+        <div class="form-group">
+          <label for="f-name" data-i18n="form.name">Full name</label>
+          <input id="f-name" required data-i18n-placeholder="ph.name" placeholder="Your full name" />
+        </div>
+        
+        <div class="form-group">
+          <label for="f-phone" data-i18n="form.phone">Phone number</label>
+          <input id="f-phone" required data-i18n-placeholder="ph.phone" placeholder="+39 ..." />
+        </div>
+        
+        <div class="form-group">
+          <label for="f-email" data-i18n="form.email">Email</label>
+          <input id="f-email" type="email" required data-i18n-placeholder="ph.email" placeholder="you@example.com" />
+        </div>
+        
+        <div class="form-group">
+          <label for="f-message" data-i18n="form.message">Message</label>
+          <textarea id="f-message" rows="4" required data-i18n-placeholder="ph.message" placeholder="Your message"></textarea>
+        </div>
 
-          <div class="form-group">
-            <label for="f-phone" data-i18n="form.phone">Phone number</label>
-            <input id="f-phone" required placeholder="+39 ..." />
-          </div>
-
-          <div class="form-group">
-            <label for="f-email" data-i18n="form.email">Email</label>
-            <input id="f-email" type="email" required placeholder="you@example.com" />
-          </div>
-
-          <div class="form-group">
-            <label for="f-message" data-i18n="form.message">Message</label>
-            <textarea id="f-message" rows="4" required placeholder="Your message"></textarea>
-          </div>
-
-          <div class="form-group">
-            <button type="submit" data-i18n="form.submit">Send</button>
-          </div>
         </form>
       </div>
     </section>
