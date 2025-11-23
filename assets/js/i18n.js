@@ -19,9 +19,9 @@
       if (val) el.textContent = val;
     });
 
-    // ✅ FIXED: Translate placeholders using data-i18n-placeholder
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
+    // ✅ Use correct placeholder attribute: data-i18n-ph
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const key = el.getAttribute('data-i18n-ph');
       const val = t(lang, key);
       if (val) el.setAttribute('placeholder', val);
     });
