@@ -56,4 +56,10 @@
     document.getElementById('btn-it')?.addEventListener('click', () => setLang('it'));
     apply(initial);  // Apply the initial language when the page loads
   });
+
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      if (dict[key]) el.placeholder = dict[key];
+    });
+
 })();
