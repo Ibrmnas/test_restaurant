@@ -41,7 +41,7 @@ window.I18N_DICT = {
     "contact.tag": "Orders Mon–Fri, weekend delivery in Torino.",
 
     "faq.title": "FAQ",
-    "about.title": "Our Storys",
+    "about.title": "Our Story",
 
     "footer.safety": "Please follow local food safety rules. Labels include ingredients & allergens.",
 
