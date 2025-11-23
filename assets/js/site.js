@@ -118,7 +118,7 @@
     const current = window.location.pathname;
 
     // If not already on vacation.html, redirect
-    if (!current.includes("vacation.html")) {
+    if (!current.includes("Vacation.html")) {
       window.location.href = window.SITE_STATUS.vacationPage;
     }
   }
