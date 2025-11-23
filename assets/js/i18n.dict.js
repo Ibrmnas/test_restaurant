@@ -127,7 +127,7 @@ window.I18N_DICT = {
 
     "about.lead": "Siamo una piccola cucina libanese a conduzione familiare a Torino, portiamo sulla tua tavola i sapori con cui siamo cresciuti.",
     "about.p1": "Mariniamo pollo fresco e halal secondo ricette di famiglia libanesi e consegniamo ogni settimana.",
-    "about.p2": "Ogni preparazione è fatta in piccole quantità, con attenzione alla qualità, all’igiene e al sapore.",
+    "about.p2": "Ogni preparazione è fatta in piccole quantità, con attenzione alla qualità, all’igiene e al sapore. Scegli i tuoi gusti, noi prepariamo tutto e il tuo pranzo/cena è pronto in un attimo.",
     "about.p3": "Qualità, semplicità e un servizio cordiale. Questa è la nostra promessa.",
     "about.list1": "Preparato fresco ogni settimana a Torino",
     "about.list2": "Prezzi trasparenti al chilo",
