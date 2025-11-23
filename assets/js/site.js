@@ -111,19 +111,7 @@
     // Fill phone placeholders
     document.querySelectorAll("[data-phone]").forEach(function (n) {
       n.textContent = window.SITE_CONFIG.phone;
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-  if (window.SITE_STATUS?.vacation) {
-    const current = window.location.pathname;
-
-    // If not already on vacation.html, redirect
-    if (!current.includes("Vacation.html")) {
-      window.location.href = window.SITE_STATUS.vacationPage;
-    }
-  }
-});
-   
+    });   
 
     // If you ever want to auto-set a WhatsApp CTA link, you can do it like this:
     // if (window.SITE_CONFIG.wa) {
