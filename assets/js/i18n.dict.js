@@ -14,6 +14,12 @@ window.I18N_DICT = {
     "hero.chip.fajita": "Lebanese Fajita",
     "hero.chip.francisco": "Francisco",
 
+    "home.why.title": "Why choose us?",
+    "home.why.1": "Family Lebanese recipes",
+    "home.why.2": "Fresh & halal chicken",
+    "home.why.3": "Delivered in Torino every weekend",
+    "home.menu.title": "Our Bestsellers",
+
     "menu.title": "Menu & Prices",
     "menu.add": "Add to Order",
 
@@ -36,6 +42,8 @@ window.I18N_DICT = {
 
     "faq.title": "FAQ",
     "about.title": "Our Story",
+
+    "footer.safety": "Please follow local food safety rules. Labels include ingredients & allergens.",
 
     "form.name": "Full name",
     "form.phone": "Phone number",
@@ -73,6 +81,12 @@ window.I18N_DICT = {
     "hero.chip.shawarma": "Shawarma Libanese",
     "hero.chip.fajita": "Fajita Libanese",
     "hero.chip.francisco": "Francisco",
+
+    "home.why.title": "Perché sceglierci?",
+    "home.why.1": "Ricette libanesi di famiglia",
+    "home.why.2": "Pollo fresco e halal",
+    "home.why.3": "Consegna a Torino ogni weekend",
+    "home.menu.title": "I più richiesti",
 
     "menu.title": "Menu & Prezzi",
     "menu.add": "Aggiungi all’ordine",
